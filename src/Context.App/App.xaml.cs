@@ -1,14 +1,13 @@
 using System.Windows;
-using Context.Application;
 using Context.Infrastructure;
 using Context.Infrastructure.Persistence;
 using Context.Presentation;
+using Context.UseCases;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Context.App;
 
-// 用完全限定名：外层命名空间 Context 下的 Context.Application 项目会让裸的 "Application" 产生歧义。
-public partial class App : System.Windows.Application
+public partial class App : Application
 {
     private ServiceProvider? _services;
 
@@ -19,8 +18,9 @@ public partial class App : System.Windows.Application
         var services = new ServiceCollection();
         services
             .AddPresentation()
-            .AddApplication()
+            .AddUseCases()
             .AddInfrastructure();
+        services.AddSingleton<MainWindow>();
 
         _services = services.BuildServiceProvider();
 

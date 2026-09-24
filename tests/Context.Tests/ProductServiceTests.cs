@@ -1,5 +1,5 @@
-using Context.Application.Abstractions;
-using Context.Application.Services;
+using Context.UseCases.Abstractions;
+using Context.UseCases.Services;
 using Context.Domain.Entities;
 using NSubstitute;
 

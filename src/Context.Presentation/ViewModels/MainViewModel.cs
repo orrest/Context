@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using Context.Application.Services;
+using Context.UseCases.Services;
 using Context.Domain.Entities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;

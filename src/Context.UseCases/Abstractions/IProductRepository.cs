@@ -1,6 +1,6 @@
 using Context.Domain.Entities;
 
-namespace Context.Application.Abstractions;
+namespace Context.UseCases.Abstractions;
 
 public interface IProductRepository
 {

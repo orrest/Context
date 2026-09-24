@@ -1,0 +1,9 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  WPF 约定：自定义控件的默认样式由本字典提供，ThemeInfo 指向本程序集  -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Orrest.Ui;component/Styles/Controls.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

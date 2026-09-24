@@ -1,7 +1,7 @@
-using Context.Application.Abstractions;
+using Context.UseCases.Abstractions;
 using Context.Domain.Entities;
 
-namespace Context.Application.Services;
+namespace Context.UseCases.Services;
 
 public sealed class ProductService(IProductRepository repository)
 {

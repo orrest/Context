@@ -1,4 +1,4 @@
-using Context.Application.Abstractions;
+using Context.UseCases.Abstractions;
 using Context.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 

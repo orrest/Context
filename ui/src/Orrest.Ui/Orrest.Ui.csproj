@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- 独立发布：dotnet pack 即可产出 NuGet 包（包 ID 默认取程序集名 Orrest.Ui） -->
+    <Version>0.1.0</Version>
+    <Authors>OR</Authors>
+    <Description>Orrest 自定义 WPF 组件与样式库。</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>
