@@ -1,0 +1,18 @@
+using Context.Application.Abstractions;
+using Context.Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Context.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        string connectionString = "Data Source=app.db")
+    {
+        services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(connectionString));
+        services.AddSingleton<DatabaseInitializer>();
+        services.AddSingleton<IProductRepository, ProductRepository>();
+        return services;
+    }
+}

@@ -1,0 +1,16 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# Local databases created at runtime
+*.db
+*.db-shm
+*.db-wal
