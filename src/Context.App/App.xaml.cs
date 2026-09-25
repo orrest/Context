@@ -20,13 +20,13 @@ public partial class App : Application
             .AddPresentation()
             .AddUseCases()
             .AddInfrastructure();
-        services.AddSingleton<MainWindow>();
+        services.AddTransient<MainView>();
 
         _services = services.BuildServiceProvider();
 
         await _services.GetRequiredService<DatabaseInitializer>().InitializeAsync();
 
-        MainWindow = _services.GetRequiredService<MainWindow>();
+        MainWindow = _services.GetRequiredService<MainView>();
         MainWindow.Show();
     }
 

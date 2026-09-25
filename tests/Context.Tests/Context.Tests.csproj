@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -22,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Context.UseCases\Context.UseCases.csproj" />
     <ProjectReference Include="..\..\src\Context.Presentation\Context.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Context.Infrastructure\Context.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,8 @@
+<Project>
+  <!-- 统一目标框架：本解决方案仅面向 Windows。
+       声明必须放在 props（早于项目体/还原聚合）；targets 阶段设置会破坏 sln 级 NuGet 还原。
+       Orrest.Ui 的 csproj 另保留同值声明，以便未来独立发布时可脱离本文件构建。 -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+  </PropertyGroup>
+</Project>

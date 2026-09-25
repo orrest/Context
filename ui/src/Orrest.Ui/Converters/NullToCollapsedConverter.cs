@@ -13,11 +13,15 @@ public sealed class NullToCollapsedConverter : IValueConverter
     /// 值为 null 时返回 <see cref="Visibility.Collapsed"/>，否则返回 <see cref="Visibility.Visible"/>。
     /// </summary>
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is null ? Visibility.Collapsed : Visibility.Visible;
+    {
+        return value is null ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     /// <summary>
     /// 不支持反向转换。
     /// </summary>
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotSupportedException();
+    {
+        throw new NotSupportedException();
+    }
 }

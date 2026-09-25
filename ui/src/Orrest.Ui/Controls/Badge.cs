@@ -25,7 +25,7 @@ public class Badge : Control
     /// </summary>
     public string Text
     {
-        get => (string)GetValue(TextProperty);
-        set => SetValue(TextProperty, value);
+        get { return (string)GetValue(TextProperty); }
+        set { SetValue(TextProperty, value); }
     }
 }

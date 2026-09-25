@@ -1,4 +1,3 @@
-using Context.UseCases.Abstractions;
 using Context.UseCases.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,7 +7,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddUseCases(this IServiceCollection services)
     {
-        services.AddSingleton<ProductService>();
+        services.AddSingleton<WallpaperService>();
         return services;
     }
 }

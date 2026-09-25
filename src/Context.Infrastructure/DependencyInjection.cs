@@ -1,4 +1,6 @@
 using Context.UseCases.Abstractions;
+using Context.Infrastructure.Desktop;
+using Context.Infrastructure.Http;
 using Context.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,11 +10,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        string connectionString = "Data Source=app.db")
+        string connectionString = "Data Source=app.db",
+        string bingBaseUrl = "https://cn.bing.com/")
     {
         services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(connectionString));
         services.AddSingleton<DatabaseInitializer>();
-        services.AddSingleton<IProductRepository, ProductRepository>();
+
+        var httpClient = new HttpClient { BaseAddress = new Uri(bingBaseUrl) };
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Context/1.0");
+        services.AddSingleton(httpClient);
+        services.AddSingleton<IWallpaperRepository, BingWallpaperRepository>();
+        services.AddSingleton<IDesktopWallpaperSetter, WindowsDesktopWallpaperSetter>();
+
         return services;
     }
 }

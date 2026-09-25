@@ -1,38 +1,17 @@
-using System.Collections.ObjectModel;
-using Context.UseCases.Services;
-using Context.Domain.Entities;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Context.Presentation.ViewModels;
 
-public partial class MainViewModel(ProductService productService) : ObservableObject
+/// <summary>
+/// 主视图自身的 ViewModel：通过工厂创建并持有桌宠子 ViewModel，
+/// 由 ContentControl + DataTemplate 渲染对应模块视图。
+/// </summary>
+public sealed class MainViewModel : ObservableObject
 {
-    public ObservableCollection<Product> Products { get; } = [];
+    public PetViewModel Pet { get; }
 
-    [ObservableProperty]
-    private string newProductName = string.Empty;
-
-    [RelayCommand]
-    private async Task LoadAsync(CancellationToken cancellationToken)
+    public MainViewModel(Func<PetViewModel> petViewModelFactory)
     {
-        Products.Clear();
-        foreach (var product in await productService.GetAllAsync(cancellationToken))
-        {
-            Products.Add(product);
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddAsync(CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(NewProductName))
-        {
-            return;
-        }
-
-        var product = await productService.AddAsync(NewProductName, cancellationToken);
-        Products.Add(product);
-        NewProductName = string.Empty;
+        Pet = petViewModelFactory();
     }
 }
