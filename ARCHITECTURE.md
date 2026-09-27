@@ -77,6 +77,7 @@ graph TD
 - **桌宠窗口**：主窗口无边框透明（`WindowStyle=None` + `AllowsTransparency` + `Background=Transparent`）、不显示任务栏、可拖动（`DragMove`）；交互按钮组默认隐藏，指针悬浮于宠物上时经 `DataTrigger(IsMouseOver)` 浮出。
 - **所有 View 与 ViewModel 一律 Transient**：容器中注册的视图与 ViewModel 统一 `AddTransient`，不使用 Singleton。子 ViewModel 不由容器直接注入到父 VM（直接注入会让容器持有实例直到作用域释放），而是注入 `Func<子ViewModel>` 工厂，由父 VM 决定创建与释放时机。
 - **ViewModel-first 组合子视图**：父 View 不在 XAML 直接嵌套子 View 标签，也不注入子 View。父 VM 通过工厂创建并持有子 VM；父 View 用 `ContentControl Content="{Binding 子VM属性}"` 渲染，资源字典中以 `DataTemplate DataType="{x:Type vm:子ViewModel}"` 声明 VM→View 映射。子 View 由 XAML 无参创建，其 `DataContext` 即内容绑定提供的子 VM；可视化树掌控 View 生命周期——View 随时可丢弃、不持有状态，状态全部保存在 ViewModel 中。
+- **跨模块 UI 请求用 Messenger**：模块 ViewModel 需要触发窗口级操作（如打开词典弹窗）时，不使用 .NET 事件，而是经 CommunityToolkit.Mvvm.Messenger 广播消息——VM 内 `Messenger.Send(new XxxMessage())`，消息类型定义在 `Presentation/Messages/`；接收方 View 实现 `IRecipient<T>` 并 `RegisterAll`/`UnregisterAll` 注册。`IMessenger` 由 DI 注入（单例 `WeakReferenceMessenger.Default`），测试可注入独立实例避免全局状态。
 - 单元测试通过模拟 UseCases 抽象进行，不发真实网络请求、不改动系统状态。
 - WPF 控件的测试需在 STA 线程执行（xUnit 默认 MTA）。
 - 目标框架统一在 `Directory.Build.props` 声明为 `net10.0-windows`（本解决方案仅面向 Windows，同时使平台兼容性分析器 CA1416 不再对 Windows 专属 API 告警），各 Context 项目的 csproj 不再单独声明；必须在 props 声明——targets 阶段设置会破坏 sln 级 NuGet 还原。Orrest.Ui 的 csproj 保留同值声明，以便未来独立发布时可脱离本文件构建。

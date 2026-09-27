@@ -55,7 +55,7 @@ public class BingWallpaperRepositoryTests
     private static BingWallpaperRepository CreateRepository(
         Func<HttpRequestMessage, HttpResponseMessage> responder)
     {
-        var httpClient = new HttpClient(new StubHandler(responder))
+        var httpClient = new HttpClient(new StubHttpHandler(responder))
         {
             BaseAddress = new Uri("https://cn.bing.com/"),
         };
@@ -69,14 +69,5 @@ public class BingWallpaperRepositoryTests
         {
             Content = new StringContent(json),
         };
-    }
-
-    private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(responder(request));
-        }
     }
 }

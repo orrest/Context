@@ -21,6 +21,9 @@ public partial class App : Application
             .AddUseCases()
             .AddInfrastructure();
         services.AddTransient<MainView>();
+        services.AddTransient<DictionaryWindow>();
+        services.AddSingleton<Func<DictionaryWindow>>(
+            sp => () => sp.GetRequiredService<DictionaryWindow>());
 
         _services = services.BuildServiceProvider();
 
