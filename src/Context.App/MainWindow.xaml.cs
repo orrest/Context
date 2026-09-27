@@ -6,16 +6,13 @@ using Context.Presentation.ViewModels;
 
 namespace Context.App;
 
-public partial class MainView : Window, IRecipient<DictionaryRequestedMessage>
+public partial class MainWindow : Window, IRecipient<DictionaryRequestedMessage>
 {
     private readonly Func<DictionaryWindow> _dictionaryWindowFactory;
     private readonly IMessenger _messenger;
     private DictionaryWindow? _dictionaryWindow;
 
-    public MainView(
-        MainViewModel viewModel,
-        Func<DictionaryWindow> dictionaryWindowFactory,
-        IMessenger messenger)
+    public MainWindow(MainViewModel viewModel, Func<DictionaryWindow> dictionaryWindowFactory, IMessenger messenger)
     {
         InitializeComponent();
         DataContext = viewModel;

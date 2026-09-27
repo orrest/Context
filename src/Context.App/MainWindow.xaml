@@ -1,10 +1,12 @@
 <Window
-    x:Class="Context.App.MainView"
+    x:Class="Context.App.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Context.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tray="clr-namespace:Orrest.Ui.Tray;assembly=Orrest.Ui"
     xmlns:vm="clr-namespace:Context.Presentation.ViewModels;assembly=Context.Presentation"
     Title="桌宠"
     d:DataContext="{d:DesignInstance Type=vm:MainViewModel,
@@ -23,5 +25,8 @@
             <local:PetView />
         </DataTemplate>
     </Window.Resources>
+    <b:Interaction.Behaviors>
+        <tray:TrayIconBehavior Tooltip="桌宠" />
+    </b:Interaction.Behaviors>
     <ContentControl Content="{Binding Pet}" />
 </Window>

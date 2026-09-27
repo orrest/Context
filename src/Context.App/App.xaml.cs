@@ -20,16 +20,16 @@ public partial class App : Application
             .AddPresentation()
             .AddUseCases()
             .AddInfrastructure();
-        services.AddTransient<MainView>();
         services.AddTransient<DictionaryWindow>();
         services.AddSingleton<Func<DictionaryWindow>>(
             sp => () => sp.GetRequiredService<DictionaryWindow>());
+        services.AddTransient<MainWindow>();
 
         _services = services.BuildServiceProvider();
 
         await _services.GetRequiredService<DatabaseInitializer>().InitializeAsync();
 
-        MainWindow = _services.GetRequiredService<MainView>();
+        MainWindow = _services.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }
 

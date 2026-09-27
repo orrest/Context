@@ -12,6 +12,7 @@
     WindowStyle="ToolWindow"
     ResizeMode="NoResize"
     Topmost="True"
+    ShowInTaskbar="False"
     FocusManager.FocusedElement="{Binding ElementName=SearchTextBox}"
     Loaded="OnLoaded"
     d:DataContext="{d:DesignInstance Type=vm:DictionaryViewModel,
