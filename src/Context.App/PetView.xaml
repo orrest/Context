@@ -10,29 +10,17 @@
     d:DataContext="{d:DesignInstance Type=vm:PetViewModel,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d">
-    <!--  透明画刷可命中测试：整个窗口范围都是悬浮区  -->
-    <Grid
-        Background="Transparent"
-        MouseEnter="OnPetMouseEnter"
-        MouseLeave="OnPetMouseLeave">
-        <!--  悬浮按钮组：鼠标进入后浮出  -->
-        <StackPanel
-            x:Name="ActionButtonPanel"
-            Margin="0,10,0,0"
-            HorizontalAlignment="Right"
-            Panel.ZIndex="99"
-            Visibility="Collapsed">
-            <Button
-                Command="{Binding NextWallpaperCommand}"
-                Content="壁纸" />
-            <Button
-                Command="{Binding OpenDictionaryCommand}"
-                Content="词典" />
-            <Button
-                Click="OnExitClick"
-                Content="退出" />
-        </StackPanel>
-        <!--  史莱姆桌宠：Skottie 循环播放 Lottie 动画；动画内容仅占视口 43% 宽，Zoom 2.2 让形象充满控件  -->
+    <!--  透明画刷可命中测试：整个窗口范围都是悬浮区；右键弹出操作菜单  -->
+    <Grid x:Name="PetRoot" Background="Transparent">
+        <Grid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Command="{Binding NextWallpaperCommand}" Header="壁纸" />
+                <MenuItem Command="{Binding OpenDictionaryCommand}" Header="词典" />
+                <Separator />
+                <MenuItem Click="OnExitClick" Header="退出" />
+            </ContextMenu>
+        </Grid.ContextMenu>
+        <!--  史莱姆桌宠：Skottie 循环播放 Lottie 动画；动画内容仅占视口 43% 宽，Zoom 1.8 让形象充满控件  -->
         <ui:LottieView
             Width="180"
             Height="180"

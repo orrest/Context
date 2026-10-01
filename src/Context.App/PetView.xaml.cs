@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace Context.App;
 
@@ -11,18 +10,9 @@ public partial class PetView : UserControl
         InitializeComponent();
     }
 
-    private void OnPetMouseEnter(object sender, MouseEventArgs e)
-    {
-        ActionButtonPanel.Visibility = Visibility.Visible;
-    }
-
-    private void OnPetMouseLeave(object sender, MouseEventArgs e)
-    {
-        ActionButtonPanel.Visibility = Visibility.Collapsed;
-    }
-
     private void OnExitClick(object sender, RoutedEventArgs e)
     {
-        Window.GetWindow(this)?.Close();
+        // MenuItem 位于 Popup 可视树，须经宿主控件反查所在窗口
+        Window.GetWindow(PetRoot)?.Close();
     }
 }
