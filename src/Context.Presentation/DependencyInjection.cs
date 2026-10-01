@@ -11,12 +11,10 @@ public static class DependencyInjection
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddTransient<MainViewModel>();
         services.AddTransient<PetViewModel>();
-        services.AddTransient<WallpaperViewModel>();
         services.AddTransient<DictionaryViewModel>();
+        services.AddTransient<SettingsViewModel>();
         services.AddSingleton<Func<PetViewModel>>(
             sp => () => sp.GetRequiredService<PetViewModel>());
-        services.AddSingleton<Func<WallpaperViewModel>>(
-            sp => () => sp.GetRequiredService<WallpaperViewModel>());
         return services;
     }
 }

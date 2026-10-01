@@ -1,0 +1,65 @@
+<Window
+    x:Class="Context.App.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    xmlns:themes="clr-namespace:Orrest.Ui.Themes;assembly=Orrest.Ui"
+    xmlns:vm="clr-namespace:Context.Presentation.ViewModels;assembly=Context.Presentation"
+    Title="设置"
+    Width="320"
+    d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel,
+                                     IsDesignTimeCreatable=False}"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="Height"
+    Topmost="True"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="ToolWindow"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <!--  主题选项：直接以枚举名（Light/Dark）显示和选择  -->
+        <ObjectDataProvider
+            x:Key="ThemeNames"
+            MethodName="GetNames"
+            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="themes:AppTheme" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <!--  ViewModel 初始化走 Behavior：Loaded 触发设置加载  -->
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding InitializeCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
+    <StackPanel Margin="12">
+        <TextBlock Text="主题" />
+        <ComboBox
+            Margin="0,4,0,0"
+            ItemsSource="{Binding Source={StaticResource ThemeNames}}"
+            SelectedItem="{Binding Theme}">
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <b:InvokeCommandAction Command="{Binding ApplyCommand}" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </ComboBox>
+        <CheckBox
+            Margin="0,10,0,0"
+            Content="窗口置顶"
+            IsChecked="{Binding IsTopmost}">
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="Checked">
+                    <b:InvokeCommandAction Command="{Binding ApplyCommand}" />
+                </b:EventTrigger>
+                <b:EventTrigger EventName="Unchecked">
+                    <b:InvokeCommandAction Command="{Binding ApplyCommand}" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </CheckBox>
+    </StackPanel>
+</Window>
