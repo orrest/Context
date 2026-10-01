@@ -1,9 +1,10 @@
 using System.Windows;
 using Context.Presentation.ViewModels;
+using Orrest.Ui.Controls;
 
 namespace Context.App;
 
-public partial class DictionaryWindow : Window
+public partial class DictionaryWindow : OWindow
 {
     public DictionaryWindow(DictionaryViewModel viewModel)
     {

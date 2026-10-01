@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--  浅色主题：画刷键映射自 WindowThemeLight 颜色常量，
+          与 Styles/Window.xaml 搭配使用（ThemeManager 合并本字典即选用浅色主题）  -->
+    <SolidColorBrush x:Key="Window.Background"
+                     Color="{x:Static themes:WindowThemeLight.Background}" />
+    <SolidColorBrush x:Key="Window.Border"
+                     Color="{x:Static themes:WindowThemeLight.Border}" />
+    <SolidColorBrush x:Key="Window.Foreground"
+                     Color="{x:Static themes:WindowThemeLight.Foreground}" />
+    <SolidColorBrush x:Key="Window.Hover"
+                     Color="{x:Static themes:WindowThemeLight.Hover}" />
+    <SolidColorBrush x:Key="Window.Pressed"
+                     Color="{x:Static themes:WindowThemeLight.Pressed}" />
+    <SolidColorBrush x:Key="Window.CloseHover"
+                     Color="{x:Static themes:WindowThemeLight.CloseHover}" />
+    <SolidColorBrush x:Key="Window.ClosePressed"
+                     Color="{x:Static themes:WindowThemeLight.ClosePressed}" />
+
+</ResourceDictionary>

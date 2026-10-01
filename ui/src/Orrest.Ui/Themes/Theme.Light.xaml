@@ -6,6 +6,7 @@
           新增组件主题字典时在此追加  -->
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Orrest.Ui;component/Themes/ContextMenu.Light.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Orrest.Ui;component/Themes/Window.Light.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <!--  背景透明度默认值（0–1 不透明度），可经 ThemeManager.SetBackgroundOpacity 运行时调整  -->

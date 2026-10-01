@@ -1,0 +1,207 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
+                    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+                    xmlns:controls="clr-namespace:Orrest.Ui.Controls"
+                    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--
+        OWindow 默认样式：自绘标题栏 + 内容区。
+        原生窗口框保留（WindowStyle 原生生效），原生标题栏内容经 WindowChromeInterop 抹除；
+        拖动/双击最大化由 WindowChrome.CaptionHeight 原生承载（CaptionHeight 与
+        WindowTheme.CaptionHeight 一致），标题栏内按钮经
+        WindowChrome.IsHitTestVisibleInChrome 保持可点击。
+        颜色全部 DynamicResource 引 Window.* 画刷，ThemeManager 切换即时生效。
+    -->
+
+    <!--  标题栏按钮基础样式：透明底 → 悬停 Hover → 按下 Pressed，内容居中  -->
+    <Style x:Key="OWindowCaptionButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="{x:Static themes:WindowTheme.CaptionButtonWidth}" />
+        <Setter Property="Height" Value="{x:Static themes:WindowTheme.CaptionHeight}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource Window.Hover}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource Window.Pressed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  关闭按钮：沿用基础模板，悬浮/按下底色改为 Windows 惯例的半透明红  -->
+    <Style x:Key="OWindowCloseButtonStyle"
+           BasedOn="{StaticResource OWindowCaptionButtonStyle}"
+           TargetType="{x:Type Button}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Window.CloseHover}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Window.ClosePressed}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  最小化按钮：ShowMinimizeButton=False、ToolWindow（仅关闭）、ResizeMode 不允许时隐藏  -->
+    <Style x:Key="OWindowMinimizeButtonStyle"
+           BasedOn="{StaticResource OWindowCaptionButtonStyle}"
+           TargetType="{x:Type Button}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowMinimizeButton, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="False">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WindowStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="ToolWindow">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ResizeMode, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="None">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ResizeMode, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="NoResize">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  最大化按钮：ShowMaximizeButton=False、ToolWindow、ResizeMode 不允许时隐藏  -->
+    <Style x:Key="OWindowMaximizeButtonStyle"
+           BasedOn="{StaticResource OWindowCaptionButtonStyle}"
+           TargetType="{x:Type Button}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowMaximizeButton, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="False">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding WindowStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="ToolWindow">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ResizeMode, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="None">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ResizeMode, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="NoResize">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ResizeMode, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="CanMinimize">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type controls:OWindow}">
+        <Setter Property="Background" Value="{DynamicResource Window.Background}" />
+        <Setter Property="Foreground" Value="{DynamicResource Window.Foreground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Window.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:OWindow}">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!--  标题栏（拖动区）：WindowStyle=None 时整条隐藏  -->
+                            <Border
+                                x:Name="CaptionBorder"
+                                Grid.Row="0"
+                                Height="{x:Static themes:WindowTheme.CaptionHeight}"
+                                Background="Transparent">
+                                <Grid>
+                                    <TextBlock
+                                        Margin="{x:Static themes:WindowTheme.TitleMargin}"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Text="{TemplateBinding Title}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <Button
+                                            x:Name="MinimizeButton"
+                                            Command="{x:Static controls:OWindow.MinimizeCommand}"
+                                            Style="{StaticResource OWindowMinimizeButtonStyle}">
+                                            <TextBlock
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="{x:Static themes:WindowTheme.GlyphFontSize}"
+                                                Text="&#xE921;" />
+                                        </Button>
+                                        <Button
+                                            x:Name="MaximizeButton"
+                                            Command="{x:Static controls:OWindow.MaximizeCommand}"
+                                            Style="{StaticResource OWindowMaximizeButtonStyle}">
+                                            <TextBlock
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="{x:Static themes:WindowTheme.GlyphFontSize}"
+                                                Text="&#xE922;">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="{x:Type TextBlock}">
+                                                        <Style.Triggers>
+                                                            <!--  最大化时切换为还原图形  -->
+                                                            <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource TemplatedParent}}"
+                                                                         Value="Maximized">
+                                                                <Setter Property="Text" Value="&#xE923;" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                        <Button
+                                            x:Name="CloseButton"
+                                            Command="{x:Static input:ApplicationCommands.Close}"
+                                            Style="{StaticResource OWindowCloseButtonStyle}">
+                                            <TextBlock
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="{x:Static themes:WindowTheme.GlyphFontSize}"
+                                                Text="&#xE8BB;" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!--  内容区：AdornerDecorator 提供 adorner 层（焦点框、校验等）  -->
+                            <AdornerDecorator Grid.Row="1">
+                                <ContentPresenter
+                                    Content="{TemplateBinding Content}"
+                                    ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            </AdornerDecorator>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="WindowStyle" Value="None">
+                            <Setter TargetName="CaptionBorder" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

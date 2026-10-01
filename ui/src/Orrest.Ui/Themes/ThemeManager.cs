@@ -33,6 +33,12 @@ public static class ThemeManager
 
     private static ResourceDictionary? _current;
 
+    /// <summary>当前应用的主题模式；尚未应用过任何主题时为 <see cref="AppTheme.Light"/>。</summary>
+    public static AppTheme Current { get; private set; } = AppTheme.Light;
+
+    /// <summary>主题切换完成（<see cref="Apply"/> 替换字典后触发）。</summary>
+    public static event EventHandler<AppTheme>? ThemeApplied;
+
     /// <summary>切换明暗主题：移除当前总主题字典并插入目标主题。</summary>
     public static void Apply(AppTheme mode)
     {
@@ -45,6 +51,8 @@ public static class ThemeManager
 
         mergedDictionaries.Insert(0, theme);
         _current = theme;
+        Current = mode;
+        ThemeApplied?.Invoke(null, mode);
     }
 
     /// <summary>

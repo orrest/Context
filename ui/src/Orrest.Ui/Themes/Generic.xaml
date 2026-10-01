@@ -9,6 +9,7 @@
     -->
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Orrest.Ui;component/Styles/ContextMenu.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/Styles/Window.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>
