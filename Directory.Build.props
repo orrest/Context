@@ -3,6 +3,8 @@
        声明必须放在 props（早于项目体/还原聚合）；targets 阶段设置会破坏 sln 级 NuGet 还原。
        Orrest.Ui 的 csproj 另保留同值声明，以便未来独立发布时可脱离本文件构建。 -->
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <!--  平台版本提升到 10.0.19041：SkiaSharp.Views.WPF 4.x 仅提供
+          net10.0-windows10.0.19041 资产，net10.0-windows(7.0) 会 NU1701 回退 net462  -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
   </PropertyGroup>
 </Project>

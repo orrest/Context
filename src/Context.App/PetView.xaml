@@ -5,6 +5,7 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:Orrest.Ui.Controls;assembly=Orrest.Ui"
     xmlns:vm="clr-namespace:Context.Presentation.ViewModels;assembly=Context.Presentation"
     d:DataContext="{d:DesignInstance Type=vm:PetViewModel,
                                      IsDesignTimeCreatable=False}"
@@ -31,13 +32,12 @@
                 Click="OnExitClick"
                 Content="退出" />
         </StackPanel>
-        <!--  史莱姆占位：后续替换为桌宠形象  -->
-        <Rectangle
-            Width="120"
-            Height="120"
+        <!--  史莱姆桌宠：Skottie 循环播放 Lottie 动画；动画内容仅占视口 43% 宽，Zoom 2.2 让形象充满控件  -->
+        <ui:LottieView
+            Width="180"
+            Height="180"
             VerticalAlignment="Bottom"
-            Fill="Black"
-            Stroke="Gray"
-            StrokeThickness="4" />
+            Source="pack://application:,,,/Assets/shrime.json"
+            Zoom="1.8" />
     </Grid>
 </UserControl>
