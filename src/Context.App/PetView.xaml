@@ -10,14 +10,33 @@
     d:DataContext="{d:DesignInstance Type=vm:PetViewModel,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d">
+    <!--  ViewModel 初始化走 Behavior：Loaded 触发设置加载  -->
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding InitializeCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <!--  透明画刷可命中测试：整个窗口范围都是悬浮区；右键弹出操作菜单  -->
-    <Grid x:Name="PetRoot" Background="Transparent">
+    <Grid
+        x:Name="PetRoot"
+        Background="Transparent">
         <Grid.ContextMenu>
             <ContextMenu>
-                <MenuItem Command="{Binding NextWallpaperCommand}" Header="壁纸" />
-                <MenuItem Command="{Binding OpenDictionaryCommand}" Header="词典" />
+                <MenuItem
+                    Command="{Binding NextWallpaperCommand}"
+                    Header="壁纸" />
+                <MenuItem
+                    Command="{Binding OpenDictionaryCommand}"
+                    Header="词典" />
+                <MenuItem
+                    Command="{Binding ToggleTopmostCommand}"
+                    Header="置顶"
+                    IsCheckable="True"
+                    IsChecked="{Binding IsTopmost, Mode=OneWay}" />
                 <Separator />
-                <MenuItem Click="OnExitClick" Header="退出" />
+                <MenuItem
+                    Click="OnExitClick"
+                    Header="退出" />
             </ContextMenu>
         </Grid.ContextMenu>
         <!--  史莱姆桌宠：Skottie 循环播放 Lottie 动画；动画内容仅占视口 43% 宽，Zoom 1.8 让形象充满控件  -->

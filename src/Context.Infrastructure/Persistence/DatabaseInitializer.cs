@@ -8,9 +8,8 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory)
     {
         using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(new CommandDefinition("""
-            CREATE TABLE IF NOT EXISTS Products (
-                Id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                Name TEXT NOT NULL
+            CREATE TABLE IF NOT EXISTS AppSettings (
+                IsTopmost INTEGER NOT NULL DEFAULT 1
             );
             """, cancellationToken: cancellationToken));
     }

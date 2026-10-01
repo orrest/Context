@@ -16,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(connectionString));
         services.AddSingleton<DatabaseInitializer>();
+        services.AddSingleton<IAppSettingsRepository, SqliteAppSettingsRepository>();
 
         // Never register bare HttpClient as a service type: a later registration
         // 禁止将裸 HttpClient 注册为服务类型：按 DI 规则后注册的实例

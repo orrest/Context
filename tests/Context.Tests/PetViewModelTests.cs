@@ -14,11 +14,7 @@ public class PetViewModelTests
     public void OpenDictionaryCommand_SendsDictionaryRequestedMessage()
     {
         var messenger = new WeakReferenceMessenger();
-        var repository = Substitute.For<IWallpaperRepository>();
-        var setter = Substitute.For<IDesktopWallpaperSetter>();
-        var petViewModel = new PetViewModel(
-            messenger,
-            () => new WallpaperViewModel(new WallpaperService(repository, setter)));
+        var petViewModel = CreatePetViewModel(messenger: messenger);
 
         DictionaryRequestedMessage? received = null;
         messenger.Register<DictionaryRequestedMessage>(this, (_, message) => received = message);
@@ -26,5 +22,45 @@ public class PetViewModelTests
         petViewModel.OpenDictionaryCommand.Execute(null);
 
         Assert.NotNull(received);
+    }
+
+    [Fact]
+    public async Task InitializeCommand_LoadsTopmostFromRepository()
+    {
+        var settingsRepository = Substitute.For<IAppSettingsRepository>();
+        settingsRepository
+            .GetAsync(Arg.Any<CancellationToken>())
+            .Returns(new AppSettings { IsTopmost = false });
+        var petViewModel = CreatePetViewModel(settingsRepository);
+
+        await petViewModel.InitializeCommand.ExecuteAsync(null);
+
+        Assert.False(petViewModel.IsTopmost);
+    }
+
+    [Fact]
+    public async Task ToggleTopmostCommand_TogglesPropertyAndSaves()
+    {
+        var settingsRepository = Substitute.For<IAppSettingsRepository>();
+        var petViewModel = CreatePetViewModel(settingsRepository);
+
+        await petViewModel.ToggleTopmostCommand.ExecuteAsync(null);
+
+        Assert.False(petViewModel.IsTopmost);
+        await settingsRepository.Received(1).SaveAsync(
+            Arg.Is<AppSettings>(settings => settings.IsTopmost == false),
+            Arg.Any<CancellationToken>());
+    }
+
+    private static PetViewModel CreatePetViewModel(
+        IAppSettingsRepository? settingsRepository = null,
+        IMessenger? messenger = null)
+    {
+        var wallpaperRepository = Substitute.For<IWallpaperRepository>();
+        var wallpaperSetter = Substitute.For<IDesktopWallpaperSetter>();
+        return new PetViewModel(
+            messenger ?? new WeakReferenceMessenger(),
+            () => new WallpaperViewModel(new WallpaperService(wallpaperRepository, wallpaperSetter)),
+            settingsRepository ?? Substitute.For<IAppSettingsRepository>());
     }
 }
