@@ -2,16 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:themes="clr-namespace:Orrest.Ui.Themes">
 
-    <!--  暗色主题：画刷键映射自 ContextMenuThemeDark 颜色常量，
-          与 Styles/ContextMenu.xaml 搭配使用（App 合并本字典即选用暗色主题）  -->
+    <!--  暗色主题：画刷键映射自 CommonThemeDark / ContextMenuThemeDark 颜色常量，
+          与 ContextMenu/ContextMenu.xaml 搭配使用（App 合并本字典即选用暗色主题）  -->
     <SolidColorBrush x:Key="ContextMenu.Background"
-                     Color="{x:Static themes:ContextMenuThemeDark.Background}" />
+                     Color="{x:Static themes:CommonThemeDark.Background}" />
     <SolidColorBrush x:Key="ContextMenu.Border"
-                     Color="{x:Static themes:ContextMenuThemeDark.Border}" />
+                     Color="{x:Static themes:CommonThemeDark.Border}" />
     <SolidColorBrush x:Key="ContextMenu.Foreground"
-                     Color="{x:Static themes:ContextMenuThemeDark.Foreground}" />
+                     Color="{x:Static themes:CommonThemeDark.Foreground}" />
     <SolidColorBrush x:Key="ContextMenu.Highlight"
-                     Color="{x:Static themes:ContextMenuThemeDark.Highlight}" />
+                     Color="{x:Static themes:CommonThemeDark.Hover}" />
     <SolidColorBrush x:Key="ContextMenu.Separator"
                      Color="{x:Static themes:ContextMenuThemeDark.Separator}" />
     <SolidColorBrush x:Key="ContextMenu.DisabledForeground"

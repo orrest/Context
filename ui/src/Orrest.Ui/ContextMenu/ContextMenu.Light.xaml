@@ -2,16 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:themes="clr-namespace:Orrest.Ui.Themes">
 
-    <!--  浅色主题：画刷键映射自 ContextMenuThemeLight 颜色常量，
-          与 Styles/ContextMenu.xaml 搭配使用（App 合并本字典即选用浅色主题）  -->
+    <!--  浅色主题：画刷键映射自 CommonThemeLight / ContextMenuThemeLight 颜色常量，
+          与 ContextMenu/ContextMenu.xaml 搭配使用（App 合并本字典即选用浅色主题）  -->
     <SolidColorBrush x:Key="ContextMenu.Background"
-                     Color="{x:Static themes:ContextMenuThemeLight.Background}" />
+                     Color="{x:Static themes:CommonThemeLight.Background}" />
     <SolidColorBrush x:Key="ContextMenu.Border"
-                     Color="{x:Static themes:ContextMenuThemeLight.Border}" />
+                     Color="{x:Static themes:CommonThemeLight.Border}" />
     <SolidColorBrush x:Key="ContextMenu.Foreground"
-                     Color="{x:Static themes:ContextMenuThemeLight.Foreground}" />
+                     Color="{x:Static themes:CommonThemeLight.Foreground}" />
     <SolidColorBrush x:Key="ContextMenu.Highlight"
-                     Color="{x:Static themes:ContextMenuThemeLight.Highlight}" />
+                     Color="{x:Static themes:CommonThemeLight.Hover}" />
     <SolidColorBrush x:Key="ContextMenu.Separator"
                      Color="{x:Static themes:ContextMenuThemeLight.Separator}" />
     <SolidColorBrush x:Key="ContextMenu.DisabledForeground"

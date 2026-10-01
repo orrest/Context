@@ -67,7 +67,7 @@ public class OWindowTests
         // 未显示的 Window 在测试中不套用模板，完整渲染由应用冒烟验证
         var dictionary = new ResourceDictionary
         {
-            Source = new Uri("pack://application:,,,/Orrest.Ui;component/Styles/Window.xaml", UriKind.Absolute),
+            Source = new Uri("pack://application:,,,/Orrest.Ui;component/Window/Window.xaml", UriKind.Absolute),
         };
 
         var style = Assert.IsType<Style>(dictionary[typeof(OWindow)]);

@@ -2,16 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:themes="clr-namespace:Orrest.Ui.Themes">
 
-    <!--  暗色主题：画刷键映射自 WindowThemeDark 颜色常量，
-          与 Styles/Window.xaml 搭配使用（ThemeManager 合并本字典即选用暗色主题）  -->
+    <!--  暗色主题：画刷键映射自 CommonThemeDark / WindowThemeDark 颜色常量，
+          与 Window/Window.xaml 搭配使用（ThemeManager 合并本字典即选用暗色主题）  -->
     <SolidColorBrush x:Key="Window.Background"
-                     Color="{x:Static themes:WindowThemeDark.Background}" />
+                     Color="{x:Static themes:CommonThemeDark.Background}" />
     <SolidColorBrush x:Key="Window.Border"
-                     Color="{x:Static themes:WindowThemeDark.Border}" />
+                     Color="{x:Static themes:CommonThemeDark.Border}" />
     <SolidColorBrush x:Key="Window.Foreground"
-                     Color="{x:Static themes:WindowThemeDark.Foreground}" />
+                     Color="{x:Static themes:CommonThemeDark.Foreground}" />
     <SolidColorBrush x:Key="Window.Hover"
-                     Color="{x:Static themes:WindowThemeDark.Hover}" />
+                     Color="{x:Static themes:CommonThemeDark.Hover}" />
     <SolidColorBrush x:Key="Window.Pressed"
                      Color="{x:Static themes:WindowThemeDark.Pressed}" />
     <SolidColorBrush x:Key="Window.CloseHover"

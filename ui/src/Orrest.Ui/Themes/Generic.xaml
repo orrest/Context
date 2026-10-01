@@ -8,8 +8,8 @@
         主题字典（Theme.Light|Dark.xaml）不在此合并：由 ThemeManager 在应用级运行时切换。
     -->
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Orrest.Ui;component/Styles/ContextMenu.xaml" />
-        <ResourceDictionary Source="/Orrest.Ui;component/Styles/Window.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/ContextMenu/ContextMenu.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/Window/Window.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>
