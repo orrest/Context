@@ -66,7 +66,7 @@ graph TD
 | Context.Infrastructure | 实现抽象，隔离一切技术细节（HTTP、Win32、SQLite 等）。 |
 | Context.Presentation | ViewModel；不引用 WPF 类型，保持可单元测试。 |
 | Context.App | XAML 视图 + 组合根：组装容器、注册视图、启动与退出清理。 |
-| Orrest.Ui | 独立组件库；自定义控件默认样式放 `Themes/Generic.xaml`，命名样式放样式字典。 |
+| Orrest.Ui | 独立组件库；对外资源统一由 `Themes/Generic.xaml` 暴露（使用方只需合并该字典，App 与运行时主题切换互不感知库内文件布局）。 |
 
 ## 运行时装配（App.OnStartup）
 

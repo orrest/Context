@@ -1,9 +1,14 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!--  WPF 约定：自定义控件的默认样式由本字典提供，ThemeInfo 指向本程序集  -->
+    <!--
+        Orrest.Ui 对外暴露的唯一入口：使用方合并本字典即获得全部样式资源，无需感知库内文件布局；
+        同时遵循 WPF 约定，本字典兼任程序集自定义控件的默认样式字典（ThemeInfo 指向本程序集）。
+        主题字典（Theme.Light|Dark.xaml）不在此合并：由 ThemeManager 在应用级运行时切换。
+    -->
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Orrest.Ui;component/Styles/Controls.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/Styles/ContextMenu.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>
