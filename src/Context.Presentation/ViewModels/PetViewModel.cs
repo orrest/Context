@@ -23,6 +23,10 @@ public partial class PetViewModel(
     [ObservableProperty]
     public partial bool IsTopmost { get; set; } = true;
 
+    /// <summary>是否暗色主题，默认 false（浅色）；切换后经 Messenger 请求主视图应用。</summary>
+    [ObservableProperty]
+    public partial bool IsDarkTheme { get; set; } = false;
+
     [RelayCommand]
     private async Task NextWallpaperAsync(CancellationToken cancellationToken)
     {
@@ -34,6 +38,14 @@ public partial class PetViewModel(
     {
         // 跨模块 UI 请求经 Messenger 广播，由主视图接收并弹出词典窗口
         Messenger.Send(new DictionaryRequestedMessage());
+    }
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        IsDarkTheme = !IsDarkTheme;
+        // 主题应用为视图层关注，经 Messenger 广播由主视图调用 ThemeManager
+        Messenger.Send(new ThemeChangeRequestedMessage(IsDarkTheme));
     }
 
     [RelayCommand]

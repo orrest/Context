@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!--  总主题字典（暗色）：合并全部组件主题字典，由 ThemeManager 切换；
+          新增组件主题字典时在此追加  -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Orrest.Ui;component/Themes/ContextMenu.Dark.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  背景透明度默认值（0–1 不透明度），可经 ThemeManager.SetBackgroundOpacity 运行时调整  -->
+    <sys:Double x:Key="Theme.BackgroundOpacity">0.4</sys:Double>
+
+</ResourceDictionary>

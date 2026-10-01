@@ -52,6 +52,22 @@ public class PetViewModelTests
             Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public void ToggleThemeCommand_TogglesPropertyAndBroadcastsThemeChange()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var petViewModel = CreatePetViewModel(messenger: messenger);
+
+        ThemeChangeRequestedMessage? received = null;
+        messenger.Register<ThemeChangeRequestedMessage>(this, (_, message) => received = message);
+
+        petViewModel.ToggleThemeCommand.Execute(null);
+
+        Assert.True(petViewModel.IsDarkTheme);
+        Assert.NotNull(received);
+        Assert.True(received.IsDark);
+    }
+
     private static PetViewModel CreatePetViewModel(
         IAppSettingsRepository? settingsRepository = null,
         IMessenger? messenger = null)

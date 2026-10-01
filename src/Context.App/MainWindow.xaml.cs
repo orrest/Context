@@ -3,10 +3,11 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Context.Presentation.Messages;
 using Context.Presentation.ViewModels;
+using Orrest.Ui.Themes;
 
 namespace Context.App;
 
-public partial class MainWindow : Window, IRecipient<DictionaryRequestedMessage>
+public partial class MainWindow : Window, IRecipient<DictionaryRequestedMessage>, IRecipient<ThemeChangeRequestedMessage>
 {
     private readonly Func<DictionaryWindow> _dictionaryWindowFactory;
     private readonly IMessenger _messenger;
@@ -32,6 +33,11 @@ public partial class MainWindow : Window, IRecipient<DictionaryRequestedMessage>
 
         _dictionaryWindow = _dictionaryWindowFactory();
         _dictionaryWindow.Show();
+    }
+
+    public void Receive(ThemeChangeRequestedMessage message)
+    {
+        ThemeManager.Apply(message.IsDark ? AppTheme.Dark : AppTheme.Light);
     }
 
     private void OnWindowDrag(object sender, MouseButtonEventArgs e)

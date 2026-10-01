@@ -4,6 +4,7 @@ using Context.Infrastructure.Persistence;
 using Context.Presentation;
 using Context.UseCases;
 using Microsoft.Extensions.DependencyInjection;
+using Orrest.Ui.Themes;
 
 namespace Context.App;
 
@@ -14,6 +15,9 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // 默认浅色主题；主题字典由 ThemeManager 统一管理（窗口显示前生效）
+        ThemeManager.Apply(AppTheme.Light);
 
         var services = new ServiceCollection();
         services

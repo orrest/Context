@@ -1,5 +1,12 @@
 <Application x:Class="Context.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Application.Resources />
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--  主题字典（Theme.Light|Dark.xaml）不在此合并：由 ThemeManager 在启动与运行时统一管理  -->
+                <ResourceDictionary Source="pack://application:,,,/Orrest.Ui;component/Styles/ContextMenu.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

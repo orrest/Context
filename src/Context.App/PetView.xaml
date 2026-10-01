@@ -33,6 +33,11 @@
                     Header="置顶"
                     IsCheckable="True"
                     IsChecked="{Binding IsTopmost, Mode=OneWay}" />
+                <MenuItem
+                    Command="{Binding ToggleThemeCommand}"
+                    Header="暗色主题"
+                    IsCheckable="True"
+                    IsChecked="{Binding IsDarkTheme, Mode=OneWay}" />
                 <Separator />
                 <MenuItem
                     Click="OnExitClick"
