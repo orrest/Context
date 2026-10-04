@@ -48,7 +48,7 @@ public static class ContextMenuThemeLight
     public static readonly Color DisabledForeground = Color.FromRgb(0xA6, 0xA6, 0xA6);
 
     /// <summary>勾选标记（强调色）。</summary>
-    public static readonly Color Glyph = Color.FromRgb(0x00, 0x67, 0xC0);
+    public static readonly Color Glyph = Color.FromRgb(0x6E, 0x56, 0xCF);
 }
 
 /// <summary>ContextMenu 独有暗色配色；共用色见 <see cref="CommonThemeDark"/>。</summary>
@@ -61,5 +61,5 @@ public static class ContextMenuThemeDark
     public static readonly Color DisabledForeground = Color.FromRgb(0x7C, 0x7C, 0x7C);
 
     /// <summary>勾选标记（强调色）。</summary>
-    public static readonly Color Glyph = Color.FromRgb(0x60, 0xCD, 0xFF);
+    public static readonly Color Glyph = Color.FromRgb(0xA7, 0x8B, 0xFA);
 }

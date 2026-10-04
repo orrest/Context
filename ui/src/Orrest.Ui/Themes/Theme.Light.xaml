@@ -5,7 +5,10 @@
     <!--  总主题字典（浅色）：合并全部组件主题字典，由 ThemeManager 切换；
           新增组件主题字典时在此追加  -->
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Orrest.Ui;component/ComboBox/ComboBox.Light.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/ContextMenu/ContextMenu.Light.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/TextBox/TextBox.Light.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/CheckBox/CheckBox.Light.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/Window/Window.Light.xaml" />
     </ResourceDictionary.MergedDictionaries>
 

@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--  暗色主题：画刷键映射自 CommonThemeDark / CheckBoxThemeDark 颜色常量，
+          与 CheckBox/CheckBox.xaml 搭配使用（ThemeManager 合并本字典即选用暗色主题）  -->
+    <SolidColorBrush x:Key="CheckBox.Foreground"
+                     Color="{x:Static themes:CommonThemeDark.Foreground}" />
+    <SolidColorBrush x:Key="CheckBox.Border"
+                     Color="{x:Static themes:CommonThemeDark.Border}" />
+    <SolidColorBrush x:Key="CheckBox.Hover"
+                     Color="{x:Static themes:CommonThemeDark.Hover}" />
+    <SolidColorBrush x:Key="CheckBox.HoverBorder"
+                     Color="{x:Static themes:CheckBoxThemeDark.HoverBorder}" />
+    <SolidColorBrush x:Key="CheckBox.Accent"
+                     Color="{x:Static themes:CheckBoxThemeDark.Accent}" />
+    <SolidColorBrush x:Key="CheckBox.AccentHover"
+                     Color="{x:Static themes:CheckBoxThemeDark.AccentHover}" />
+    <SolidColorBrush x:Key="CheckBox.Checkmark"
+                     Color="{x:Static themes:CheckBoxThemeDark.Checkmark}" />
+    <SolidColorBrush x:Key="CheckBox.DisabledForeground"
+                     Color="{x:Static themes:CheckBoxThemeDark.DisabledForeground}" />
+
+</ResourceDictionary>

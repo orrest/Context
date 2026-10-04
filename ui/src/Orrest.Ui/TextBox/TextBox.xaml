@@ -1,0 +1,65 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--
+        TextBox 样式：圆角 / 1px 边框线，聚焦时边框变强调色，悬停底色轻微加深。
+        度量常量来自 TextBoxTheme（x:Static）；颜色经 TextBox.* 画刷键引用，
+        主题由 ThemeManager 切换聚合字典 Theme.Light|Dark.xaml 决定，本字典与之一同合并到应用资源。
+
+        背景透明度：与 ContextMenu/Window 相同的分层结构——背景层（底）+ 文本内容层（上），
+        背景层的 Opacity 绑定 Theme.BackgroundOpacity 资源（默认值定义在总主题字典，
+        可经 ThemeManager.SetBackgroundOpacity 运行时调整），不影响文本清晰度。
+        未合并总主题字典时绑定落空，背景层保持默认 Opacity=1，样式不失效。
+
+        注意：本样式为隐式样式，合并后作用于应用内所有 TextBox
+        （Editable ComboBox 内嵌 TextBox 亦会被作用）。
+    -->
+
+    <Style TargetType="{x:Type TextBox}">
+        <Setter Property="Foreground" Value="{DynamicResource TextBox.Foreground}" />
+        <Setter Property="Background" Value="{DynamicResource TextBox.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Border}" />
+        <Setter Property="BorderThickness" Value="{x:Static themes:TextBoxTheme.BorderThickness}" />
+        <Setter Property="Padding" Value="{x:Static themes:TextBoxTheme.Padding}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource TextBox.Foreground}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource TextBox.FocusedBorder}" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{x:Static themes:TextBoxTheme.CornerRadius}">
+                        <Grid>
+                            <!--  背景层：透明度随全局资源，文本层不受影响  -->
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{x:Static themes:TextBoxTheme.CornerRadius}"
+                                Opacity="{DynamicResource Theme.BackgroundOpacity}" />
+                            <!--  PART_ContentHost：文本输入/光标/滚动的宿主（名称约定必需）  -->
+                            <ScrollViewer
+                                x:Name="PART_ContentHost"
+                                Padding="{TemplateBinding Padding}" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource TextBox.Hover}" />
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource TextBox.FocusedBorder}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource TextBox.DisabledForeground}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

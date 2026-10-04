@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--  浅色主题：画刷键映射自 CommonThemeLight / ComboBoxThemeLight 颜色常量，
+          与 ComboBox/ComboBox.xaml 搭配使用（App 合并本字典即选用浅色主题）  -->
+    <SolidColorBrush x:Key="ComboBox.Background"
+                     Color="{x:Static themes:CommonThemeLight.Background}" />
+    <SolidColorBrush x:Key="ComboBox.Border"
+                     Color="{x:Static themes:CommonThemeLight.Border}" />
+    <SolidColorBrush x:Key="ComboBox.Foreground"
+                     Color="{x:Static themes:CommonThemeLight.Foreground}" />
+    <SolidColorBrush x:Key="ComboBox.Highlight"
+                     Color="{x:Static themes:CommonThemeLight.Hover}" />
+    <SolidColorBrush x:Key="ComboBox.HoverBorder"
+                     Color="{x:Static themes:ComboBoxThemeLight.HoverBorder}" />
+    <SolidColorBrush x:Key="ComboBox.FocusedBorder"
+                     Color="{x:Static themes:ComboBoxThemeLight.FocusedBorder}" />
+    <SolidColorBrush x:Key="ComboBox.Glyph"
+                     Color="{x:Static themes:ComboBoxThemeLight.Glyph}" />
+    <SolidColorBrush x:Key="ComboBox.DisabledForeground"
+                     Color="{x:Static themes:ComboBoxThemeLight.DisabledForeground}" />
+
+</ResourceDictionary>

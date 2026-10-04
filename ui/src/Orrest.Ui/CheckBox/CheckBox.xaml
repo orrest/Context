@@ -1,0 +1,122 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--
+        CheckBox 样式：圆角方框 + 强调色填充 + 对勾（三态为短横线）。
+        度量常量来自 CheckBoxTheme（x:Static）；颜色经 CheckBox.* 画刷键引用，
+        主题由 ThemeManager 切换聚合字典 Theme.Light|Dark.xaml 决定，本字典与之一同合并到应用资源。
+
+        状态配色：未勾选为 1px 边框（悬停加深 + Hover 底），勾选为强调色填充（悬停加深/提亮），
+        禁用统一降为半透明。模板触发器按声明顺序覆盖（后声明者生效），
+        故悬停 × 勾选的组合态在单态触发器之后声明。
+        注意：隐式样式，合并后作用于应用内所有 CheckBox。
+    -->
+
+    <Style TargetType="{x:Type CheckBox}">
+        <Setter Property="Foreground" Value="{DynamicResource CheckBox.Foreground}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <!--  焦点框随极简设计省略（默认虚线框与圆角风格冲突）  -->
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <!--  根节点透明底保证内容区整行可点击  -->
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <!--  勾选框：1px 边框 + 填充底，内部为对勾/短横线图形  -->
+                        <Border
+                            x:Name="Box"
+                            Width="{x:Static themes:CheckBoxTheme.BoxSize}"
+                            Height="{x:Static themes:CheckBoxTheme.BoxSize}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource CheckBox.Border}"
+                            BorderThickness="{x:Static themes:CheckBoxTheme.BoxBorderThickness}"
+                            CornerRadius="{x:Static themes:CheckBoxTheme.BoxCornerRadius}">
+                            <Grid>
+                                <Path
+                                    x:Name="CheckGlyph"
+                                    Width="11"
+                                    Height="9"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M 1 4.5 L 4 7.5 L 10 1"
+                                    Stretch="None"
+                                    Stroke="{DynamicResource CheckBox.Checkmark}"
+                                    StrokeEndLineCap="Round"
+                                    StrokeLineJoin="Round"
+                                    StrokeStartLineCap="Round"
+                                    StrokeThickness="1.8"
+                                    Visibility="Collapsed" />
+                                <Rectangle
+                                    x:Name="IndeterminateGlyph"
+                                    Width="7"
+                                    Height="2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Fill="{DynamicResource CheckBox.Checkmark}"
+                                    RadiusX="1"
+                                    RadiusY="1"
+                                    Visibility="Collapsed" />
+                            </Grid>
+                        </Border>
+                        <ContentPresenter
+                            Grid.Column="1"
+                            Margin="{x:Static themes:CheckBoxTheme.ContentMargin}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            ContentSource="Content"
+                            RecognizesAccessKey="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!--  悬停（未勾选）：边框加深 + Hover 底  -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource CheckBox.Hover}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource CheckBox.HoverBorder}" />
+                        </Trigger>
+                        <!--  勾选：强调色填充并显示对勾  -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource CheckBox.Accent}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource CheckBox.Accent}" />
+                            <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <!--  半选：强调色填充并显示短横线（IsThreeState=True 时可达）  -->
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource CheckBox.Accent}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource CheckBox.Accent}" />
+                            <Setter TargetName="IndeterminateGlyph" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <!--  悬停 × 勾选：底色改为加深/提亮的强调色  -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource CheckBox.AccentHover}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource CheckBox.AccentHover}" />
+                        </MultiTrigger>
+                        <!--  键盘焦点：边框转强调色（与 TextBox 聚焦边框同源）；勾选态与填充同色，不重复提示  -->
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource CheckBox.Accent}" />
+                        </Trigger>
+                        <!--  禁用：文本去饱和 + 勾选框整体半透明（一次覆盖全部勾选态）  -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource CheckBox.DisabledForeground}" />
+                            <Setter TargetName="Box" Property="Opacity" Value="{x:Static themes:CheckBoxTheme.DisabledOpacity}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
