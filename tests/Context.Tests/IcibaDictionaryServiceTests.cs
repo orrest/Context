@@ -1,5 +1,5 @@
 using System.Net;
-using Context.Infrastructure.Http;
+using Dictionary.Http;
 
 namespace Context.Tests;
 

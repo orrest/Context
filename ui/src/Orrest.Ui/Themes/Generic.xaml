@@ -12,6 +12,7 @@
         <ResourceDictionary Source="/Orrest.Ui;component/ContextMenu/ContextMenu.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/TextBox/TextBox.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/CheckBox/CheckBox.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/TabControl/TabControl.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/Window/Window.xaml" />
     </ResourceDictionary.MergedDictionaries>
 

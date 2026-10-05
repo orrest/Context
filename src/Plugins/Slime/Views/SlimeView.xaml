@@ -1,0 +1,17 @@
+<UserControl
+    x:Class="Slime.Views.SlimeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="clr-namespace:Orrest.Ui.Controls;assembly=Orrest.Ui">
+    <!--  纯静态桌宠视图（无 ViewModel）：透明画刷可命中测试，整个窗口范围都是悬浮区；
+          操作入口在托盘菜单与应用内快捷键  -->
+    <Grid Background="Transparent">
+        <!--  史莱姆桌宠：Skottie 循环播放 Lottie 动画；动画内容仅占视口 43% 宽，Zoom 1.8 让形象充满控件  -->
+        <ui:LottieView
+            Width="180"
+            Height="180"
+            VerticalAlignment="Bottom"
+            Source="pack://application:,,,/Slime;component/Assets/shrime.json"
+            Zoom="1.8" />
+    </Grid>
+</UserControl>

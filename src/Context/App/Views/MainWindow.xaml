@@ -1,0 +1,26 @@
+<Window
+    x:Class="Context.App.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tray="clr-namespace:Orrest.Ui.Tray;assembly=Orrest.Ui"
+    Title="桌宠"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseLeftButtonDown="OnWindowDrag"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <!--  托盘是唯一的应用入口：菜单 = 设置（命令由代码后置取自命令目录，
+          与对应快捷键共用同一实例）+ 分隔线 + 内置退出；词典仅经应用内快捷键（Alt+D）打开  -->
+    <b:Interaction.Behaviors>
+        <tray:TrayIconBehavior Tooltip="桌宠">
+            <MenuItem x:Name="SettingsMenuItem" Header="设置" />
+        </tray:TrayIconBehavior>
+    </b:Interaction.Behaviors>
+</Window>

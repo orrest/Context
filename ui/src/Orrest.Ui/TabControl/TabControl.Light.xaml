@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:Orrest.Ui.Themes">
+
+    <!--  浅色主题：画刷键映射自 CommonThemeLight / TabControlThemeLight 颜色常量，
+          与 TabControl/TabControl.xaml 搭配使用（ThemeManager 合并本字典即选用浅色主题）  -->
+    <SolidColorBrush x:Key="TabItem.Foreground"
+                     Color="{x:Static themes:CommonThemeLight.Foreground}" />
+    <SolidColorBrush x:Key="TabItem.Hover"
+                     Color="{x:Static themes:CommonThemeLight.Hover}" />
+    <SolidColorBrush x:Key="TabItem.PanelBorder"
+                     Color="{x:Static themes:CommonThemeLight.Border}" />
+    <SolidColorBrush x:Key="TabItem.SelectedUnderline"
+                     Color="{x:Static themes:TabControlThemeLight.Accent}" />
+
+</ResourceDictionary>

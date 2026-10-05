@@ -9,6 +9,7 @@
         <ResourceDictionary Source="/Orrest.Ui;component/ContextMenu/ContextMenu.Dark.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/TextBox/TextBox.Dark.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/CheckBox/CheckBox.Dark.xaml" />
+        <ResourceDictionary Source="/Orrest.Ui;component/TabControl/TabControl.Dark.xaml" />
         <ResourceDictionary Source="/Orrest.Ui;component/Window/Window.Dark.xaml" />
     </ResourceDictionary.MergedDictionaries>
 

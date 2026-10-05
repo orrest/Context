@@ -1,6 +1,6 @@
-using Context.Domain.Entities;
-using Context.UseCases.Abstractions;
-using Context.UseCases.Services;
+using Wallpaper.Abstractions;
+using WallpaperEntity = Wallpaper.Entities.Wallpaper;
+using Wallpaper.Services;
 using NSubstitute;
 
 namespace Context.Tests;
@@ -23,7 +23,7 @@ public class WallpaperServiceTests
     public async Task SetNextAsDesktopAsync_FirstCall_LazyLoads_AndSetsToday()
     {
         _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns(CreateWallpapers());
+            .Returns(CreateWallpaper());
 
         await _service.SetNextAsDesktopAsync();
 
@@ -36,7 +36,7 @@ public class WallpaperServiceTests
     public async Task SetNextAsDesktopAsync_WrapsAround_AfterLastWallpaper()
     {
         _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns(CreateWallpapers());
+            .Returns(CreateWallpaper());
 
         // 依次：今天 → 昨天 → 回绕到今天
         await _service.SetNextAsDesktopAsync();
@@ -53,7 +53,7 @@ public class WallpaperServiceTests
     public async Task SetNextAsDesktopAsync_EmptyRecentList_DoesNotSet_AndRetriesNextCall()
     {
         _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns([], CreateWallpapers());
+            .Returns([], CreateWallpaper());
 
         await _service.SetNextAsDesktopAsync();
         await _setter.DidNotReceiveWithAnyArgs().SetAsync(
@@ -65,18 +65,18 @@ public class WallpaperServiceTests
             Arg.Any<byte[]>(), "2026-09-24.jpg", Arg.Any<CancellationToken>());
     }
 
-    private static List<Wallpaper> CreateWallpapers()
+    private static List<WallpaperEntity> CreateWallpaper()
     {
         return
         [
-            new Wallpaper
+            new WallpaperEntity
             {
                 Date = new DateOnly(2026, 9, 24),
                 Title = "今天",
                 ImageUrl = TodayImageUrl,
                 ThumbnailUrl = "today-thumb",
             },
-            new Wallpaper
+            new WallpaperEntity
             {
                 Date = new DateOnly(2026, 9, 23),
                 Title = "昨天",

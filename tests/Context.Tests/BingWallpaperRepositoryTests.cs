@@ -1,5 +1,5 @@
 using System.Net;
-using Context.Infrastructure.Http;
+using Wallpaper.Http;
 
 namespace Context.Tests;
 

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--  应用层视图与组合根位于 App/ 子目录：ApplicationDefinition 显式声明，
+        并从默认 Page 通配中排除，避免构建动作冲突  -->
+  <ItemGroup>
+    <ApplicationDefinition Include="App\App.xaml" />
+    <Page Remove="App\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plugin\Plugin.csproj" />
+    <ProjectReference Include="..\Plugins\Slime\Slime.csproj" />
+    <ProjectReference Include="..\Plugins\Dictionary\Dictionary.csproj" />
+    <ProjectReference Include="..\Plugins\Wallpaper\Wallpaper.csproj" />
+    <ProjectReference Include="..\..\ui\src\Orrest.Ui\Orrest.Ui.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>

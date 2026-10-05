@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="xunit" />
@@ -19,9 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Context.UseCases\Context.UseCases.csproj" />
-    <ProjectReference Include="..\..\src\Context.Presentation\Context.Presentation.csproj" />
-    <ProjectReference Include="..\..\src\Context.Infrastructure\Context.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Context\Context.csproj" />
+    <ProjectReference Include="..\..\src\Plugin\Plugin.csproj" />
+    <ProjectReference Include="..\..\src\Plugins\Slime\Slime.csproj" />
+    <ProjectReference Include="..\..\src\Plugins\Dictionary\Dictionary.csproj" />
+    <ProjectReference Include="..\..\src\Plugins\Wallpaper\Wallpaper.csproj" />
   </ItemGroup>
 
 </Project>

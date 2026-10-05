@@ -1,7 +1,7 @@
 using System.Net.Http;
-using Context.Domain.Entities;
-using Context.Presentation.ViewModels;
-using Context.UseCases.Abstractions;
+using Dictionary.Entities;
+using Dictionary.ViewModels;
+using Dictionary.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 

@@ -39,6 +39,8 @@ public class ThemeDictionaryTests
         Assert.IsType<SolidColorBrush>(theme["TextBox.FocusedBorder"]);
         Assert.IsType<SolidColorBrush>(theme["CheckBox.Accent"]);
         Assert.IsType<SolidColorBrush>(theme["CheckBox.Checkmark"]);
+        Assert.IsType<SolidColorBrush>(theme["TabItem.Foreground"]);
+        Assert.IsType<SolidColorBrush>(theme["TabItem.SelectedUnderline"]);
         Assert.IsType<SolidColorBrush>(theme["Window.Background"]);
         Assert.IsType<SolidColorBrush>(theme["Window.CloseHover"]);
         Assert.IsType<double>(theme["Theme.BackgroundOpacity"]);
@@ -52,11 +54,13 @@ public class ThemeDictionaryTests
             Source = new Uri("pack://application:,,,/Orrest.Ui;component/Themes/Generic.xaml", UriKind.Absolute),
         };
 
-        // 五个组件样式字典均已合并：ContextMenu、ComboBox、TextBox、CheckBox 与 OWindow 均以类型键暴露样式
+        // 六个组件样式字典均已合并：ContextMenu、ComboBox、TextBox、CheckBox、TabControl 与 OWindow 均以类型键暴露样式
         Assert.IsType<Style>(generic[typeof(System.Windows.Controls.ContextMenu)]);
         Assert.IsType<Style>(generic[typeof(System.Windows.Controls.ComboBox)]);
         Assert.IsType<Style>(generic[typeof(System.Windows.Controls.TextBox)]);
         Assert.IsType<Style>(generic[typeof(System.Windows.Controls.CheckBox)]);
+        Assert.IsType<Style>(generic[typeof(System.Windows.Controls.TabControl)]);
+        Assert.IsType<Style>(generic[typeof(System.Windows.Controls.TabItem)]);
         Assert.IsType<Style>(generic[typeof(Controls.OWindow)]);
     }
 
