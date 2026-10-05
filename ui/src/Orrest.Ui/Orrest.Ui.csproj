@@ -18,7 +18,6 @@
     <!-- TrayIconBehavior 依赖 Behavior<T>；版本由 Directory.Packages.props 集中管理 -->
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
     <PackageReference Include="SkiaSharp" />
-    <PackageReference Include="SkiaSharp.Skottie" />
     <PackageReference Include="SkiaSharp.Views.WPF" />
   </ItemGroup>
 

@@ -31,6 +31,7 @@ public partial class MainWindow : Window,
     private readonly IAppSettingsRepository _appSettingsRepository;
     private readonly KeyGestureConverter _gestureConverter = new();
     private readonly GlobalHotkeyController _globalHotkey;
+    private readonly SlimeView _slimeView;
 
     public MainWindow(
         SlimeView slimeView,
@@ -46,6 +47,7 @@ public partial class MainWindow : Window,
         _appSettingsRepository = appSettingsRepository;
 
         // 内容为桌宠插件提供的视图；透明画布保持窗口整体可命中、可拖动
+        _slimeView = slimeView;
         Content = slimeView;
 
         // 托盘菜单命令取自命令目录：与对应应用内快捷键共用同一命令实例
@@ -82,7 +84,7 @@ public partial class MainWindow : Window,
         _ = ApplyInputBindingsAsync();
     }
 
-    /// <summary>全局呼出热键触发：主窗口置前并激活。</summary>
+    /// <summary>全局呼出热键触发：主窗口置前并激活，桌宠动画循环播放一段时长。</summary>
     private void Summon()
     {
         if (WindowState == WindowState.Minimized)
@@ -91,6 +93,7 @@ public partial class MainWindow : Window,
         }
 
         Activate();
+        _slimeView.Play();
     }
 
     /// <summary>从应用设置读取全局呼出热键并注册。</summary>

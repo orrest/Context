@@ -81,7 +81,7 @@ graph TD
 | Plugins/Slime | 桌宠功能插件库：桌宠视图与动画资源，由宿主主窗口承载（托盘、拖动等窗口行为在宿主），自包含切片。 |
 | Plugins/Wallpaper | 壁纸功能插件库：必应壁纸获取与设桌面，自包含切片。 |
 | Plugins/Dictionary | 词典功能插件库：金山词霸查词 + 词典窗口，自包含切片。 |
-| Orrest.Ui | 独立组件与样式库（OWindow、Tray、LottieView、主题化控件、HotkeyBox）；对外资源统一由 `Themes/Generic.xaml` 暴露（使用方只需合并该字典，App 与运行时主题切换互不感知库内文件布局）。 |
+| Orrest.Ui | 独立组件与样式库（OWindow、Tray、SpriteSheetView、主题化控件、HotkeyBox）；对外资源统一由 `Themes/Generic.xaml` 暴露（使用方只需合并该字典，App 与运行时主题切换互不感知库内文件布局）。 |
 
 ## 运行时装配（App.OnStartup）
 

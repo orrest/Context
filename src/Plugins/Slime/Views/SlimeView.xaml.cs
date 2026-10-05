@@ -8,4 +8,10 @@ public partial class SlimeView : UserControl
     {
         InitializeComponent();
     }
+
+    /// <summary>桌宠动画循环播放一段时长（全局呼出热键触发）。</summary>
+    public void Play()
+    {
+        Animation.Play();
+    }
 }

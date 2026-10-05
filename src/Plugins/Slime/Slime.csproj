@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\shrime.json" />
+    <Resource Include="Assets\the_character_animation_sheet.png" />
   </ItemGroup>
 
   <PropertyGroup>
