@@ -19,6 +19,12 @@
     WindowStartupLocation="CenterScreen"
     WindowStyle="ToolWindow"
     mc:Ignorable="d">
+    <!--  ESC 关闭窗口（OWindow 已装配 ApplicationCommands.Close 命令绑定）  -->
+    <ui:OWindow.InputBindings>
+        <KeyBinding
+            Command="ApplicationCommands.Close"
+            Key="Escape" />
+    </ui:OWindow.InputBindings>
     <StackPanel Margin="12">
         <TextBox
             x:Name="SearchTextBox"

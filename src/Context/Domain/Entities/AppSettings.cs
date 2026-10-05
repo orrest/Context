@@ -8,4 +8,7 @@ public sealed class AppSettings
 
     /// <summary>应用主题名（对应 Orrest.Ui 的 AppTheme 枚举名），null 表示未设置（应用侧回退浅色）。</summary>
     public string? Theme { get; set; }
+
+    /// <summary>全局呼出快捷键手势（系统级注册，如 "Ctrl+Alt+Space"），null/空表示停用。</summary>
+    public string? GlobalHotkey { get; set; }
 }

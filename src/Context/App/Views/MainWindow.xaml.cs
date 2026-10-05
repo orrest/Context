@@ -5,6 +5,7 @@ using Context.App.Commands;
 using Plugin;
 using Context.Presentation.Messages;
 using Context.UseCases.Abstractions;
+using Orrest.Ui.Hotkey;
 using Orrest.Ui.Themes;
 using Slime.Views;
 
@@ -12,11 +13,13 @@ namespace Context.App.Views;
 
 /// <summary>
 /// 主窗口：宿主的透明占位窗体（无边框、不进任务栏，随应用生命周期常驻），
-/// 承载窗口级行为——托盘入口、拖动、应用内快捷键；其内容由桌宠插件提供
+/// 承载窗口级行为——托盘入口、拖动、应用内快捷键、全局呼出热键；其内容由桌宠插件提供
 /// （构造注入 <see cref="SlimeView"/>），主窗口本身不包含桌宠实现。
 /// 应用内快捷键（KeyBinding）由本窗口内联装配：主窗口是唯一常驻窗口，
 /// 生效手势 = 显式绑定 ?? 命令声明默认；设置页变更经
 /// <see cref="HotkeysChangedMessage"/> 通知本窗口重装。
+/// 全局呼出热键（系统级 RegisterHotKey）同样由本窗口承载：手势取自应用设置，
+/// 变更经 <see cref="SettingsAppliedMessage"/> 通知本窗口重注册，触发即呼出本窗口。
 /// </summary>
 public partial class MainWindow : Window,
     IRecipient<SettingsAppliedMessage>,
@@ -25,18 +28,22 @@ public partial class MainWindow : Window,
     private readonly IMessenger _messenger;
     private readonly IHotkeyCommandCatalog _hotkeyCommandCatalog;
     private readonly IHotkeyBindingsRepository _hotkeyBindingsRepository;
+    private readonly IAppSettingsRepository _appSettingsRepository;
     private readonly KeyGestureConverter _gestureConverter = new();
+    private readonly GlobalHotkeyController _globalHotkey;
 
     public MainWindow(
         SlimeView slimeView,
         IHotkeyCommandCatalog hotkeyCommandCatalog,
         IHotkeyBindingsRepository hotkeyBindingsRepository,
+        IAppSettingsRepository appSettingsRepository,
         IMessenger messenger)
     {
         InitializeComponent();
         _messenger = messenger;
         _hotkeyCommandCatalog = hotkeyCommandCatalog;
         _hotkeyBindingsRepository = hotkeyBindingsRepository;
+        _appSettingsRepository = appSettingsRepository;
 
         // 内容为桌宠插件提供的视图；透明画布保持窗口整体可命中、可拖动
         Content = slimeView;
@@ -45,24 +52,52 @@ public partial class MainWindow : Window,
         SettingsMenuItem.Command = hotkeyCommandCatalog.GetCommands()
             .FirstOrDefault(c => c.Id == SettingsCommands.OpenCommandId)?.Command;
 
+        // 全局呼出热键：触发即置前并激活常驻主窗口；初值取自应用设置
+        _globalHotkey = new GlobalHotkeyController(this);
+        _globalHotkey.Pressed += (_, _) => Summon();
+
         // 主窗口是唯一常驻窗口：应用内快捷键仅挂载于本窗口（窗口显示前装配即可生效）
         _ = ApplyInputBindingsAsync();
+        _ = ApplyGlobalHotkeyAsync();
 
         _messenger.RegisterAll(this);
-        Closed += (_, _) => _messenger.UnregisterAll(this);
+        Closed += (_, _) =>
+        {
+            _messenger.UnregisterAll(this);
+            _globalHotkey.Dispose();
+        };
     }
 
     public void Receive(SettingsAppliedMessage message)
     {
-        // 置顶与主题均为视图层行为，由代码后置直接应用
+        // 置顶与主题均为视图层行为，由代码后置直接应用；全局热键随设置重注册
         Topmost = message.IsTopmost;
         ThemeManager.Apply(ThemeMapper.Map(message.Theme));
+        _globalHotkey.Apply(message.GlobalHotkey);
     }
 
     /// <summary>接收快捷键变更消息，重装本窗口绑定。</summary>
     public void Receive(HotkeysChangedMessage message)
     {
         _ = ApplyInputBindingsAsync();
+    }
+
+    /// <summary>全局呼出热键触发：主窗口置前并激活。</summary>
+    private void Summon()
+    {
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+
+        Activate();
+    }
+
+    /// <summary>从应用设置读取全局呼出热键并注册。</summary>
+    private async Task ApplyGlobalHotkeyAsync(CancellationToken cancellationToken = default)
+    {
+        var settings = await _appSettingsRepository.GetAsync(cancellationToken);
+        _globalHotkey.Apply(settings.GlobalHotkey);
     }
 
     /// <summary>

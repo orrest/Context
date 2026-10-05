@@ -31,6 +31,12 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
+    <!--  ESC 关闭窗口（OWindow 已装配 ApplicationCommands.Close 命令绑定）  -->
+    <ui:OWindow.InputBindings>
+        <KeyBinding
+            Command="ApplicationCommands.Close"
+            Key="Escape" />
+    </ui:OWindow.InputBindings>
     <!--  ViewModel 初始化走 Behavior：Loaded 触发设置与快捷键加载  -->
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Loaded">
@@ -64,6 +70,25 @@
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </CheckBox>
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="140" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Text="全局呼出快捷键" />
+                    <ui:HotkeyBox
+                        Grid.Column="1"
+                        Command="{Binding ApplyCommand}"
+                        Gesture="{Binding GlobalHotkey}" />
+                </Grid>
+                <TextBlock
+                    Margin="0,4,0,0"
+                    FontSize="11"
+                    Opacity="0.6"
+                    Text="系统级生效：任意应用前台按下即呼出主窗口；Back/Delete 清空即停用。"
+                    TextWrapping="Wrap" />
             </StackPanel>
         </TabItem>
         <TabItem Header="功能">

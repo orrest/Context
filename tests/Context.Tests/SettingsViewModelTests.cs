@@ -17,13 +17,14 @@ public class SettingsViewModelTests
         var settingsRepository = Substitute.For<IAppSettingsRepository>();
         settingsRepository
             .GetAsync(Arg.Any<CancellationToken>())
-            .Returns(new AppSettings { Theme = "Dark", IsTopmost = false });
+            .Returns(new AppSettings { Theme = "Dark", IsTopmost = false, GlobalHotkey = "Ctrl+Alt+Space" });
         var settingsViewModel = CreateSettingsViewModel(settingsRepository);
 
         await settingsViewModel.InitializeCommand.ExecuteAsync(null);
 
         Assert.Equal("Dark", settingsViewModel.Theme);
         Assert.False(settingsViewModel.IsTopmost);
+        Assert.Equal("Ctrl+Alt+Space", settingsViewModel.GlobalHotkey);
     }
 
     [Fact]
@@ -34,6 +35,7 @@ public class SettingsViewModelTests
         var settingsViewModel = CreateSettingsViewModel(settingsRepository, messenger);
         settingsViewModel.Theme = "Dark";
         settingsViewModel.IsTopmost = false;
+        settingsViewModel.GlobalHotkey = "Ctrl+Alt+Space";
 
         SettingsAppliedMessage? received = null;
         messenger.Register<SettingsAppliedMessage>(this, (_, message) => received = message);
@@ -41,11 +43,13 @@ public class SettingsViewModelTests
         await settingsViewModel.ApplyCommand.ExecuteAsync(null);
 
         await settingsRepository.Received(1).SaveAsync(
-            Arg.Is<AppSettings>(settings => settings.Theme == "Dark" && !settings.IsTopmost),
+            Arg.Is<AppSettings>(settings =>
+                settings.Theme == "Dark" && !settings.IsTopmost && settings.GlobalHotkey == "Ctrl+Alt+Space"),
             Arg.Any<CancellationToken>());
         Assert.NotNull(received);
         Assert.Equal("Dark", received.Theme);
         Assert.False(received.IsTopmost);
+        Assert.Equal("Ctrl+Alt+Space", received.GlobalHotkey);
     }
 
     [Fact]

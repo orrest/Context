@@ -10,7 +10,7 @@ using Context.UseCases.Abstractions;
 namespace Context.Presentation.ViewModels;
 
 /// <summary>
-/// 设置窗口 ViewModel：主题与置顶偏好的加载、编辑与应用；「快捷键」页的条目生成。
+/// 设置窗口 ViewModel：主题、置顶与全局呼出热键偏好的加载、编辑与应用；「快捷键」页的条目生成。
 /// 选项变更即持久化，并广播消息由主视图/快捷键服务应用。
 /// </summary>
 public partial class SettingsViewModel(
@@ -28,6 +28,10 @@ public partial class SettingsViewModel(
     [ObservableProperty]
     public partial bool IsTopmost { get; set; } = true;
 
+    /// <summary>全局呼出快捷键手势（系统级注册），null/空表示停用。</summary>
+    [ObservableProperty]
+    public partial string? GlobalHotkey { get; set; } = null;
+
     /// <summary>「快捷键」页条目：命令目录 × 持久化绑定（未绑定用命令默认手势）。</summary>
     public ObservableCollection<HotkeyItemViewModel> Hotkeys { get; } = [];
 
@@ -37,6 +41,7 @@ public partial class SettingsViewModel(
         var settings = await appSettingsRepository.GetAsync(cancellationToken);
         Theme = settings.Theme;
         IsTopmost = settings.IsTopmost;
+        GlobalHotkey = settings.GlobalHotkey;
 
         var bindings = await hotkeyBindingsRepository.GetAllAsync(cancellationToken);
         var bound = bindings.ToDictionary(binding => binding.CommandId);
@@ -56,7 +61,12 @@ public partial class SettingsViewModel(
     private async Task ApplyAsync(CancellationToken cancellationToken)
     {
         await appSettingsRepository.SaveAsync(
-            new AppSettings { Theme = Theme, IsTopmost = IsTopmost }, cancellationToken);
-        Messenger.Send(new SettingsAppliedMessage(Theme, IsTopmost));
+            new AppSettings
+            {
+                Theme = Theme,
+                IsTopmost = IsTopmost,
+                GlobalHotkey = GlobalHotkey,
+            }, cancellationToken);
+        Messenger.Send(new SettingsAppliedMessage(Theme, IsTopmost, GlobalHotkey));
     }
 }

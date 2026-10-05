@@ -24,6 +24,13 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory)
                 cancellationToken: cancellationToken));
         }
 
+        if (columns.All(column => column.name != "GlobalHotkey"))
+        {
+            await connection.ExecuteAsync(new CommandDefinition(
+                "ALTER TABLE AppSettings ADD COLUMN GlobalHotkey TEXT;",
+                cancellationToken: cancellationToken));
+        }
+
         await connection.ExecuteAsync(new CommandDefinition("""
             CREATE TABLE IF NOT EXISTS hotkey_bindings (
                 CommandId  TEXT PRIMARY KEY,

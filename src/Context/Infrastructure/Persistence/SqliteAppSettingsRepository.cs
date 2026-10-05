@@ -10,11 +10,11 @@ public sealed class SqliteAppSettingsRepository(IDbConnectionFactory connectionF
     {
         using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         var row = await connection.QuerySingleOrDefaultAsync<AppSettingsRow>(new CommandDefinition("""
-            SELECT IsTopmost, Theme FROM AppSettings LIMIT 1;
+            SELECT IsTopmost, Theme, GlobalHotkey FROM AppSettings LIMIT 1;
             """, cancellationToken: cancellationToken));
         if (row is null)
         {
-            // 首次运行：空表返回默认值（置顶开启、浅色主题）
+            // 首次运行：空表返回默认值（置顶开启、浅色主题、全局热键停用）
             return new AppSettings();
         }
 
@@ -22,6 +22,7 @@ public sealed class SqliteAppSettingsRepository(IDbConnectionFactory connectionF
         {
             IsTopmost = row.IsTopmost != 0,
             Theme = row.Theme,
+            GlobalHotkey = row.GlobalHotkey,
         };
     }
 
@@ -30,10 +31,10 @@ public sealed class SqliteAppSettingsRepository(IDbConnectionFactory connectionF
         using var connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(new CommandDefinition("""
             DELETE FROM AppSettings;
-            INSERT INTO AppSettings (IsTopmost, Theme) VALUES (@IsTopmost, @Theme);
-            """, new { settings.IsTopmost, settings.Theme }, cancellationToken: cancellationToken));
+            INSERT INTO AppSettings (IsTopmost, Theme, GlobalHotkey) VALUES (@IsTopmost, @Theme, @GlobalHotkey);
+            """, new { settings.IsTopmost, settings.Theme, settings.GlobalHotkey }, cancellationToken: cancellationToken));
     }
 
     /// <summary>查询行映射（SQLite INTEGER 物化为 long，Dapper 构造器映射不做类型转换）。</summary>
-    private sealed record AppSettingsRow(long IsTopmost, string Theme);
+    private sealed record AppSettingsRow(long IsTopmost, string Theme, string? GlobalHotkey);
 }
