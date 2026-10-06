@@ -13,7 +13,7 @@ public sealed class WallpaperCommands(WallpaperService wallpaperService) : IComm
 {
     public const string NextCommandId = "wallpaper.next";
 
-    [HotkeyCommand(NextCommandId, "壁纸：切换下一张", "Alt+P")]
+    [HotkeyCommand(NextCommandId, "壁纸：切换下一张", "Alt+Down")]
     public IRelayCommand NextCommand { get; } = new AsyncRelayCommand(
         cancellationToken => wallpaperService.SetNextAsDesktopAsync(cancellationToken));
 }

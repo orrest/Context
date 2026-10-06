@@ -2,6 +2,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Context.Domain.Entities;
 using Context.Presentation.Messages;
+using Context.Presentation.Services;
 using Context.Presentation.ViewModels;
 using Plugin;
 using Context.UseCases.Abstractions;
@@ -56,7 +57,7 @@ public class SettingsViewModelTests
     public async Task InitializeCommand_BuildsHotkeyItems_WithBoundOrDefaultGesture()
     {
         var messenger = new WeakReferenceMessenger();
-        var catalog = Substitute.For<IHotkeyCommandCatalog>();
+        var catalog = Substitute.For<IPluginCatalog>();
         catalog.GetCommands().Returns(
         [
             new CommandDeclaration("wallpaper.next", "壁纸：切换下一张", "F8", Substitute.For<ICommand>()),
@@ -68,7 +69,7 @@ public class SettingsViewModelTests
             .Returns(new List<HotkeyBinding> { new("wallpaper.next", "Ctrl+F8") });
         var settingsViewModel = CreateSettingsViewModel(
             messenger: messenger,
-            hotkeyCommandCatalog: catalog,
+            pluginCatalog: catalog,
             hotkeyBindingsRepository: bindingsRepository);
 
         await settingsViewModel.InitializeCommand.ExecuteAsync(null);
@@ -82,14 +83,40 @@ public class SettingsViewModelTests
         Assert.Equal("F6", other.KeyGesture); // 未绑定回退命令默认手势
     }
 
+    [Fact]
+    public async Task InitializeCommand_BuildsSettingItems_WithPersistedOrDefaultValue()
+    {
+        var catalog = Substitute.For<IPluginCatalog>();
+        catalog.GetSettings().Returns(
+        [
+            new SettingDeclaration(
+                "music.cacheDirectory", "音乐：缓存目录", @"C:\Users\OR\Music", _ => { }),
+        ]);
+        var pluginSettingsRepository = Substitute.For<IPluginSettingsRepository>();
+        pluginSettingsRepository
+            .GetAllAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<PluginSetting> { new("music.cacheDirectory", @"D:\Music") });
+        var settingsViewModel = CreateSettingsViewModel(
+            pluginCatalog: catalog,
+            pluginSettingsRepository: pluginSettingsRepository);
+
+        await settingsViewModel.InitializeCommand.ExecuteAsync(null);
+
+        var item = Assert.Single(settingsViewModel.Settings);
+        Assert.Equal("music.cacheDirectory", item.SettingId);
+        Assert.Equal("音乐：缓存目录", item.DisplayName);
+        Assert.Equal(@"D:\Music", item.Value); // 持久化值优先于声明默认值
+    }
+
     private static SettingsViewModel CreateSettingsViewModel(
         IAppSettingsRepository? settingsRepository = null,
         IMessenger? messenger = null,
-        IHotkeyCommandCatalog? hotkeyCommandCatalog = null,
-        IHotkeyBindingsRepository? hotkeyBindingsRepository = null)
+        IPluginCatalog? pluginCatalog = null,
+        IHotkeyBindingsRepository? hotkeyBindingsRepository = null,
+        IPluginSettingsRepository? pluginSettingsRepository = null)
     {
         messenger ??= new WeakReferenceMessenger();
-        hotkeyCommandCatalog ??= Substitute.For<IHotkeyCommandCatalog>();
+        pluginCatalog ??= Substitute.For<IPluginCatalog>();
         if (hotkeyBindingsRepository is null)
         {
             hotkeyBindingsRepository = Substitute.For<IHotkeyBindingsRepository>();
@@ -106,13 +133,26 @@ public class SettingsViewModelTests
                 .Returns(new AppSettings());
         }
 
+        if (pluginSettingsRepository is null)
+        {
+            pluginSettingsRepository = Substitute.For<IPluginSettingsRepository>();
+            pluginSettingsRepository
+                .GetAllAsync(Arg.Any<CancellationToken>())
+                .Returns(new List<PluginSetting>());
+        }
+
         Func<HotkeyItemViewModel> hotkeyItemFactory =
             () => new HotkeyItemViewModel(messenger, hotkeyBindingsRepository);
+        var settingsApplier = new PluginSettingsApplier(pluginCatalog, pluginSettingsRepository);
+        Func<SettingItemViewModel> settingItemFactory =
+            () => new SettingItemViewModel(pluginSettingsRepository, settingsApplier);
         return new SettingsViewModel(
             messenger,
             settingsRepository,
-            hotkeyCommandCatalog,
+            pluginCatalog,
             hotkeyBindingsRepository,
-            hotkeyItemFactory);
+            pluginSettingsRepository,
+            hotkeyItemFactory,
+            settingItemFactory);
     }
 }

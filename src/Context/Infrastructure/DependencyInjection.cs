@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddSingleton<DatabaseInitializer>();
         services.AddSingleton<IAppSettingsRepository, SqliteAppSettingsRepository>();
         services.AddSingleton<IHotkeyBindingsRepository, SqliteHotkeyBindingsRepository>();
+        services.AddSingleton<IPluginSettingsRepository, SqlitePluginSettingsRepository>();
 
         return services;
     }

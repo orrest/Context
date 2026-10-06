@@ -13,6 +13,7 @@
     Width="340"
     d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel,
                                      IsDesignTimeCreatable=False}"
+    Loaded="OnLoaded"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
     SizeToContent="Height"
@@ -37,12 +38,8 @@
             Command="ApplicationCommands.Close"
             Key="Escape" />
     </ui:OWindow.InputBindings>
-    <!--  ViewModel 初始化走 Behavior：Loaded 触发设置与快捷键加载  -->
-    <b:Interaction.Triggers>
-        <b:EventTrigger EventName="Loaded">
-            <b:InvokeCommandAction Command="{Binding InitializeCommand}" />
-        </b:EventTrigger>
-    </b:Interaction.Triggers>
+    <!--  ViewModel 初始化由代码后置在 Loaded 触发：窗口级 Interaction.Triggers 附加
+          发生在首次 Loaded 引发期间、恰好错过该次引发（命令永不执行），故不走 Behavior  -->
     <TabControl Margin="12">
         <TabItem Header="通用">
             <StackPanel>
@@ -114,6 +111,42 @@
                                     Grid.Column="1"
                                     Command="{Binding ApplyHotkeyCommand}"
                                     Gesture="{Binding KeyGesture}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock
+                    Margin="0,12,0,4"
+                    Opacity="0.6"
+                    Text="插件设置：编辑后失焦或回车保存；清空并失焦恢复默认。"
+                    TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding Settings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="140" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Text="{Binding DisplayName}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip="{Binding Value}" />
+                                <TextBox
+                                    Grid.Column="1"
+                                    Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding
+                                            Command="{Binding ApplySettingCommand}"
+                                            Key="Enter" />
+                                    </TextBox.InputBindings>
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="LostFocus">
+                                            <b:InvokeCommandAction Command="{Binding ApplySettingCommand}" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
+                                </TextBox>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

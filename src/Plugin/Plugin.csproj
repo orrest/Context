@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!--  UseWPF 仅为 IMainWindowOverlay 契约暴露 FrameworkElement；
+        契约程序集仍保持零 NuGet 包、零项目引用  -->
   <PropertyGroup>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

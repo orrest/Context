@@ -1,5 +1,7 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.Messaging;
 using Context.App.Commands;
 using Plugin;
@@ -14,7 +16,8 @@ namespace Context.App.Views;
 /// <summary>
 /// 主窗口：宿主的透明占位窗体（无边框、不进任务栏，随应用生命周期常驻），
 /// 承载窗口级行为——托盘入口、拖动、应用内快捷键、全局呼出热键；其内容由桌宠插件提供
-/// （构造注入 <see cref="SlimeView"/>），主窗口本身不包含桌宠实现。
+/// （构造注入 <see cref="SlimeView"/>），并以插件覆盖层（<see cref="IMainWindowOverlay"/>）
+/// 叠加各插件贡献的视图，主窗口本身不包含桌宠或插件实现。
 /// 应用内快捷键（KeyBinding）由本窗口内联装配：主窗口是唯一常驻窗口，
 /// 生效手势 = 显式绑定 ?? 命令声明默认；设置页变更经
 /// <see cref="HotkeysChangedMessage"/> 通知本窗口重装。
@@ -26,7 +29,7 @@ public partial class MainWindow : Window,
     IRecipient<HotkeysChangedMessage>
 {
     private readonly IMessenger _messenger;
-    private readonly IHotkeyCommandCatalog _hotkeyCommandCatalog;
+    private readonly IPluginCatalog _pluginCatalog;
     private readonly IHotkeyBindingsRepository _hotkeyBindingsRepository;
     private readonly IAppSettingsRepository _appSettingsRepository;
     private readonly KeyGestureConverter _gestureConverter = new();
@@ -35,23 +38,32 @@ public partial class MainWindow : Window,
 
     public MainWindow(
         SlimeView slimeView,
-        IHotkeyCommandCatalog hotkeyCommandCatalog,
+        IPluginCatalog pluginCatalog,
         IHotkeyBindingsRepository hotkeyBindingsRepository,
         IAppSettingsRepository appSettingsRepository,
+        IEnumerable<IMainWindowOverlay> mainWindowOverlays,
         IMessenger messenger)
     {
         InitializeComponent();
         _messenger = messenger;
-        _hotkeyCommandCatalog = hotkeyCommandCatalog;
+        _pluginCatalog = pluginCatalog;
         _hotkeyBindingsRepository = hotkeyBindingsRepository;
         _appSettingsRepository = appSettingsRepository;
 
-        // 内容为桌宠插件提供的视图；透明画布保持窗口整体可命中、可拖动
+        // 内容为桌宠插件提供的视图；透明画布保持窗口整体可命中、可拖动，
+        // 插件覆盖层依次叠加其上，显隐由各视图自治（如音乐“喜欢”按钮仅播放时可见）
         _slimeView = slimeView;
-        Content = slimeView;
+        var root = new Grid { Background = Brushes.Transparent };
+        root.Children.Add(slimeView);
+        foreach (var overlay in mainWindowOverlays)
+        {
+            root.Children.Add(overlay.View);
+        }
 
-        // 托盘菜单命令取自命令目录：与对应应用内快捷键共用同一命令实例
-        SettingsMenuItem.Command = hotkeyCommandCatalog.GetCommands()
+        Content = root;
+
+        // 托盘菜单命令取自插件目录：与对应应用内快捷键共用同一命令实例
+        SettingsMenuItem.Command = pluginCatalog.GetCommands()
             .FirstOrDefault(c => c.Id == SettingsCommands.OpenCommandId)?.Command;
 
         // 全局呼出热键：触发即置前并激活常驻主窗口；初值取自应用设置
@@ -104,12 +116,12 @@ public partial class MainWindow : Window,
     }
 
     /// <summary>
-    /// 依据命令目录与持久化绑定重建本窗口的 InputBindings。
+    /// 依据插件目录与持久化绑定重建本窗口的 InputBindings。
     /// 本窗口 InputBindings 仅有此处装配的内容，整体清装安全。
     /// </summary>
     private async Task ApplyInputBindingsAsync(CancellationToken cancellationToken = default)
     {
-        var commands = _hotkeyCommandCatalog.GetCommands();
+        var commands = _pluginCatalog.GetCommands();
         var bindings = await _hotkeyBindingsRepository.GetAllAsync(cancellationToken);
         var bound = bindings.ToDictionary(binding => binding.CommandId);
 

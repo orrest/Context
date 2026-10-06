@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\src\Plugins\Slime\Slime.csproj" />
     <ProjectReference Include="..\..\src\Plugins\Dictionary\Dictionary.csproj" />
     <ProjectReference Include="..\..\src\Plugins\Wallpaper\Wallpaper.csproj" />
+    <ProjectReference Include="..\..\src\Plugins\Music\Music.csproj" />
   </ItemGroup>
 
 </Project>

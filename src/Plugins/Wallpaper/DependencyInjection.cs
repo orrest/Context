@@ -24,8 +24,9 @@ public static class DependencyInjection
             _ => new BingWallpaperRepository(CreateHttpClient(bingBaseUrl)));
         services.AddSingleton<IDesktopWallpaperSetter, WindowsDesktopWallpaperSetter>();
 
-        // 命令提供者经标记接口注册，宿主命令目录（ICommandProvider 多实现收集）隐式聚合
-        services.AddTransient<ICommandProvider, WallpaperCommands>();
+        // 命令提供者经标记接口注册，宿主插件目录（ICommandProvider 多实现收集）隐式聚合；
+        // 单例：命令实例被常驻目录聚合
+        services.AddSingleton<ICommandProvider, WallpaperCommands>();
 
         return services;
     }

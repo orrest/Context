@@ -8,12 +8,12 @@ namespace Context.App;
 public static class DependencyInjection
 {
     /// <summary>
-    /// 快捷键目录装配：命令目录隐式聚合全部 ICommandProvider 声明（设置页与
-    /// 主窗口快捷键装配共用）。
+    /// 插件目录装配：插件目录隐式聚合全部 ICommandProvider 声明（快捷键命令与插件设置，
+    /// 设置页与主窗口装配共用）。
     /// </summary>
     public static IServiceCollection AddHotkeys(this IServiceCollection services)
     {
-        services.AddSingleton<IHotkeyCommandCatalog, HotkeyCommandCatalog>();
+        services.AddSingleton<IPluginCatalog, PluginCatalog>();
         return services;
     }
 

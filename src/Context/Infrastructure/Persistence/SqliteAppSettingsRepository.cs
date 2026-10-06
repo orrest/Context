@@ -14,7 +14,7 @@ public sealed class SqliteAppSettingsRepository(IDbConnectionFactory connectionF
             """, cancellationToken: cancellationToken));
         if (row is null)
         {
-            // 首次运行：空表返回默认值（置顶开启、浅色主题、全局热键停用）
+            // 首次运行：空表返回默认值（置顶开启、浅色主题、全局呼出 Alt+O）
             return new AppSettings();
         }
 

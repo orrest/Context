@@ -18,7 +18,7 @@ public sealed class SettingsCommands : ICommandProvider
 
     private readonly Func<SettingsWindow> _settingsWindowFactory;
 
-    [HotkeyCommand(OpenCommandId, "设置：打开设置窗口", "Alt+M")]
+    [HotkeyCommand(OpenCommandId, "设置：打开设置窗口", "Alt+S")]
     public IRelayCommand OpenCommand { get; }
 
     public SettingsCommands(Func<SettingsWindow> settingsWindowFactory)

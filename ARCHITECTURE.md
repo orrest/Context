@@ -26,11 +26,12 @@ Context.slnx
 │   │   │   ├── Views/                #     视图：主窗口（透明占位窗体，维持应用生命周期）、设置窗口
 │   │   │   ├── Hotkey/               #     快捷键服务
 │   │   │   └── DependencyInjection.cs / ThemeMapper.cs / App.xaml
-│   ├── Plugin/               # 插件契约程序集（自包含：零包、零项目引用）
+│   ├── Plugin/               # 插件契约程序集（自包含：零包、零项目引用；仅 UseWPF 框架引用）
 │   └── Plugins/
 │       ├── Slime/                     # 桌宠插件（桌宠视图 + 动画资源；仅引用 Orrest.Ui）
 │       ├── Dictionary/       # 词典插件（仅引用 Plugin 与 Orrest.Ui）
-│       └── Wallpaper/       # 壁纸插件（仅引用 Plugin）
+│       ├── Wallpaper/       # 壁纸插件（仅引用 Plugin）
+│       └── Music/           # 音乐插件（仅引用 Plugin：本地目录随机播放）
 ├── tests/
 │   └── Context.Tests/                # 单元测试（xUnit + NSubstitute）
 └── ui/                               # 独立组件库目录（可独立发布）
@@ -47,22 +48,25 @@ graph TD
     Slime["Slime（桌宠插件）"]
     Wallpaper["Wallpaper（壁纸插件）"]
     Dictionary["Dictionary（词典插件）"]
+    Music["Music（音乐插件）"]
     Ui["Orrest.Ui（独立）"]
 
     Context --> Plugin
     Context --> Slime
     Context --> Wallpaper
     Context --> Dictionary
+    Context --> Music
     Context --> Ui
     Wallpaper --> Plugin
     Dictionary --> Plugin
     Dictionary --> Ui
+    Music --> Plugin
 ```
 
 ### 依赖规则（单向，禁止反向）
 
 1. **主项目自包含**：`Context` 为单工程，内部按 Clean Architecture 分层——Domain / UseCases / Infrastructure / Presentation / App 文件夹与同名命名空间；单向依赖：UseCases → Domain；Infrastructure / Presentation → UseCases；App → 全部。分层由程序集边界降级为**命名空间约定**（编译器不再强制），依靠本规则与评审/测试守护。
-2. **契约程序集自包含**：`Plugin` 零 NuGet 包、零项目引用，承载插件对外声明契约（`HotkeyCommandAttribute` / `ICommandProvider` / `CommandDeclaration` / `IHotkeyCommandCatalog` 及目录聚合实现）。
+2. **契约程序集自包含**：`Plugin` 零 NuGet 包、零项目引用（仅 `UseWPF` 框架引用，供 `IMainWindowOverlay` 暴露 `FrameworkElement`），承载插件对外声明契约——命令（`HotkeyCommandAttribute` / `ICommandProvider` / `CommandDeclaration`）、插件设置（`PluginSettingAttribute` / `SettingDeclaration`）、主窗口覆盖层（`IMainWindowOverlay`）及插件目录聚合实现（`IPluginCatalog` / `PluginCatalog`）。
 3. **插件库自包含**：`src/Plugins/` 下的插件库（如 Wallpaper）不引用主项目与 Orrest.Ui，仅引用 Plugin；库内同样按 实体 / 抽象 / 用例 / 基础设施实现 角色分层，对外暴露 `AddXxx()` 装配扩展与命令声明。
 4. **依赖抽象而非实现**：接口定义在 UseCases（主项目）或库内 Abstractions（插件），实现在 Infrastructure，运行期由 DI 注入；替换技术实现只改 Infrastructure。
 5. **组合根唯一例外**：主项目 App 层是唯一引用插件库并完成装配的地方。
@@ -77,15 +81,16 @@ graph TD
 | Context/Infrastructure | 实现抽象，隔离一切技术细节（SQLite、Win32 等；各插件的 HTTP 实现随插件自包含）。 |
 | Context/Presentation | ViewModel 与跨模块消息；不引用 WPF 类型，保持可单元测试。 |
 | Context/App | XAML 视图 + 组合根 + 宿主服务（快捷键管理等）：组装容器、注册视图、启动与退出清理。 |
-| Plugin | 插件声明契约与命令目录（反射聚合各插件经 `[HotkeyCommand]` 声明的命令）。 |
+| Plugin | 插件声明契约与插件目录（反射聚合各插件经 `[HotkeyCommand]` 声明的命令与经 `[PluginSetting]` 声明的设置项；`IMainWindowOverlay` 覆盖层契约）。 |
 | Plugins/Slime | 桌宠功能插件库：桌宠视图与动画资源，由宿主主窗口承载（托盘、拖动等窗口行为在宿主），自包含切片。 |
 | Plugins/Wallpaper | 壁纸功能插件库：必应壁纸获取与设桌面，自包含切片。 |
 | Plugins/Dictionary | 词典功能插件库：金山词霸查词 + 词典窗口，自包含切片。 |
+| Plugins/Music | 音乐功能插件库：扫描本地音乐目录随机播放（NAudio：WasApiOut 共享模式输出 + MediaFoundationReader 解码，「音乐：音乐目录」设置项指定来源；不依赖 WMP 旧版组件），自包含切片；主窗口「喜欢」按钮为占位展示（无实际功能）。 |
 | Orrest.Ui | 独立组件与样式库（OWindow、Tray、SpriteSheetView、主题化控件、HotkeyBox）；对外资源统一由 `Themes/Generic.xaml` 暴露（使用方只需合并该字典，App 与运行时主题切换互不感知库内文件布局）。 |
 
 ## 运行时装配（App.OnStartup）
 
-DI 扩展链式注册：`AddPresentation()` / `AddInfrastructure()` / `AddWindows()` / `AddHotkeys()` / 各插件库（`AddSlime()` / `AddDictionary()` / `AddWallpaper()` 等） → `BuildServiceProvider()` → 建库 → 应用已存主题 → 主窗口显示（其构造中依据命令目录与持久化绑定装配应用内快捷键）；`OnExit` 释放容器。跨库装配一律放在组合根。主窗口是宿主提供的透明占位窗体（维持应用生命周期），其内容由桌宠插件提供（构造注入 `SlimeView`），窗口本身不含桌宠实现。
+DI 扩展链式注册：`AddPresentation()` / `AddInfrastructure()` / `AddWindows()` / `AddHotkeys()` / 各插件库（`AddSlime()` / `AddDictionary()` / `AddWallpaper()` / `AddMusic()` 等） → `BuildServiceProvider()` → 建库 → 应用已存插件设置（`PluginSettingsApplier` 回写声明） → 应用已存主题 → 主窗口显示（其构造中把桌宠视图与各插件覆盖层（`IMainWindowOverlay`）合成为根内容，并依据插件目录与持久化绑定装配应用内快捷键）；`OnExit` 释放容器。跨库装配一律放在组合根。主窗口是宿主提供的透明占位窗体（维持应用生命周期），窗口本身不含桌宠或插件实现。
 
 ## 编码规则
 
@@ -97,7 +102,8 @@ DI 扩展链式注册：`AddPresentation()` / `AddInfrastructure()` / `AddWindow
 
 - **每层提供一个 `AddXxx(this IServiceCollection)` 扩展方法**，组合根链式调用，层内注册细节不外泄；插件库同理。
 - **所有 View 与 ViewModel 一律 Transient**，不使用 Singleton。子 ViewModel 不由容器直接注入父 VM（直接注入会让容器持有实例直到作用域释放），而是注入 `Func<子ViewModel>` 工厂，由父 VM 决定创建与释放时机。
-- **ViewModel 初始化走 Behavior**：视图代码后置只做构造注入与设置 `DataContext`，不编写事件处理逻辑；数据初始化由 XAML 中的 `Interaction.Triggers` 把视图 `Loaded` 事件绑定到 ViewModel 的初始化命令（`InvokeCommandAction`）。代码后置仅允许纯窗口行为（拖动 `DragMove`、关闭窗口 `Close`）。
+- **ViewModel 初始化走 Behavior，但窗口根不用 Loaded 触发器**：视图代码后置只做构造注入与设置 `DataContext`，不编写事件处理逻辑；数据初始化由 XAML 中的 `Interaction.Triggers` 把视图 `Loaded` 事件绑定到 ViewModel 的初始化命令（`InvokeCommandAction`）。**例外：窗口（OWindow 子类）与常驻覆盖层视图不得用 Loaded 触发器初始化**——触发器附加发生在首次 Loaded 引发期间、恰好错过该次引发（窗口只引发一次），命令将永不执行；此类视图按词典窗口先例以代码后置 `Loaded="OnLoaded"` 触发初始化命令（SettingsWindow / MusicOverlayView）。用户交互类触发器（SelectionChanged / LostFocus 等，附加后由用户动作引发）不受此限。
 - **应用入口只有系统托盘图标**：所有窗口不进任务栏与 Alt+Tab；托盘注册由 XAML 附加的 `Orrest.Ui.Tray.TrayIconBehavior` 声明完成，其 `MenuItems` 子元素声明自定义菜单项（设置；命令由主窗口在构造中按命令 id 从命令目录接线，与快捷键共用实例；词典仅经应用内快捷键 Alt+D 打开），菜单尾部自动追加分隔线与内置「退出」。桌宠视图无右键菜单。
-- **快捷键机制（应用内 KeyBinding）**：命令提供者（`ICommandProvider` 实现）在公共 ICommand 属性上以 `[HotkeyCommand(id, 显示名, 默认手势)]` 声明命令，经 DI 注册为 `ICommandProvider` 后由 Plugin 的命令目录**隐式聚合**——新插件或宿主命令注册即自动进入快捷键页，聚合代码零改动。声明方均为专用命令提供者类，同一模式：插件库（`DictionaryCommands` / `WallpaperCommands`）与宿主（`SettingsCommands`）。命令目录（`IHotkeyCommandCatalog`）经 `AddHotkeys()` 注册进容器；主窗口在构造中依据目录 + 持久化绑定（SQLite `hotkey_bindings` 表）装配自身的 `InputBindings`（主窗口是唯一常驻窗口；生效手势 = 显式绑定 ?? 声明默认，无效手势静默回退默认）；设置页「快捷键」Tab（Orrest.Ui `HotkeyBox` 按键录入）修改即存并广播 `HotkeysChangedMessage` 触发重装。
+- **快捷键与插件设置机制**：命令提供者（`ICommandProvider` 实现）在公共 ICommand 属性上以 `[HotkeyCommand(id, 显示名, 默认手势)]` 声明命令，在公共可读写 string 属性上以 `[PluginSetting(id, 显示名)]` 声明插件特有设置，经 DI 注册为 `ICommandProvider` 后由 Plugin 的插件目录（`IPluginCatalog`）**隐式聚合**——新插件或宿主命令注册即自动进入设置页，聚合代码零改动。声明方均为专用提供者类，同一模式：插件库（`DictionaryCommands` / `WallpaperCommands` / `MusicCommands` + `MusicSettings`）与宿主（`SettingsCommands`）。插件目录经 `AddHotkeys()` 注册进容器；快捷键：主窗口在构造中依据目录 + 持久化绑定（SQLite `hotkey_bindings` 表）装配自身 `InputBindings`（主窗口是唯一常驻窗口；生效手势 = 显式绑定 ?? 声明默认，无效手势静默回退默认），设置页改动即存并广播 `HotkeysChangedMessage` 触发重装；插件设置：持久化在 `plugin_settings` 表，设置页改动即存并经 `PluginSettingsApplier` 回写声明（启动时全量应用，无需重启或消息）。
+- **主窗口覆盖层**：插件经 `IMainWindowOverlay`（`FrameworkElement View`）向主窗口贡献视图，DI 多实现收集、主窗口构造时依次叠加在桌宠内容之上（根为透明 Grid，透明区域不拦截拖动）；视图显隐由插件自治（如音乐「喜欢」按钮仅播放时可见）。
 - **Win32 互操作统一使用源生成的 `[LibraryImport]`**（宿主类型声明为 `partial`，声明不带 `extern`）。

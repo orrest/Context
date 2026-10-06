@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using Context.Presentation.Services;
 using Context.Presentation.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,10 @@ public static class DependencyInjection
         services.AddTransient<HotkeyItemViewModel>();
         services.AddSingleton<Func<HotkeyItemViewModel>>(
             sp => () => sp.GetRequiredService<HotkeyItemViewModel>());
+        services.AddTransient<SettingItemViewModel>();
+        services.AddSingleton<Func<SettingItemViewModel>>(
+            sp => () => sp.GetRequiredService<SettingItemViewModel>());
+        services.AddSingleton<PluginSettingsApplier>();
 
         return services;
     }

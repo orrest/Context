@@ -37,5 +37,12 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory)
                 KeyGesture TEXT NOT NULL
             );
             """, cancellationToken: cancellationToken));
+
+        await connection.ExecuteAsync(new CommandDefinition("""
+            CREATE TABLE IF NOT EXISTS plugin_settings (
+                Id    TEXT PRIMARY KEY,
+                Value TEXT NOT NULL
+            );
+            """, cancellationToken: cancellationToken));
     }
 }

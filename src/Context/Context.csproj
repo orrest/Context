@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Plugins\Slime\Slime.csproj" />
     <ProjectReference Include="..\Plugins\Dictionary\Dictionary.csproj" />
     <ProjectReference Include="..\Plugins\Wallpaper\Wallpaper.csproj" />
+    <ProjectReference Include="..\Plugins\Music\Music.csproj" />
     <ProjectReference Include="..\..\ui\src\Orrest.Ui\Orrest.Ui.csproj" />
   </ItemGroup>
 
