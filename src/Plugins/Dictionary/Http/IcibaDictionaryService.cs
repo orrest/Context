@@ -1,22 +1,31 @@
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Dictionary.Entities;
 using Dictionary.Abstractions;
 
 namespace Dictionary.Http;
 
-/// <summary>
-/// 金山词霸查词（iciba Next.js 数据接口）：
-/// 1. 从站点任意页面 HTML 的 __NEXT_DATA__ 中解析当前 buildId；
-/// 2. GET /_next/data/{buildId}/word.json?w={word}；
-/// 3. 释义取 pageProps.initialReduxState.word.wordInfo.bidec：
-///    parts[].part_name（词性）+ parts[].means[].word_mean（释义）。
-/// buildId 随站点重新部署变化，缓存在实例内；请求失效（404）时自动刷新一次并重试。
-/// </summary>
-public sealed class IcibaDictionaryService(HttpClient httpClient) : IDictionaryService
+// dict.iciba.com signed lookup API, shared by EN-to-CN and CN-to-EN queries:
+// both directions return gloss pairs in message.baesInfo.symbols[].parts[].
+// dict.iciba.com 签名查词接口，英译中与中译英共用：
+// 两个方向的词性释义都在 message.baesInfo.symbols[].parts[] 中，解析路径一致。
+public sealed class IcibaDictionaryService : IDictionaryService
 {
-    private const string BuildIdMarker = "\"buildId\":\"";
-    private string? _buildId;
+    private const string QueryPath = "/dictionary/word/query/web";
+    private const string ClientId = "6";
+    private const string Key = "1000006";
+    // Public constant shipped inside the iciba web client, paired with key 1000006.
+    // 官网 Web 端内置的公开常量，与 key 1000006 配对使用。
+    private const string SignSalt = "7ece94d9f9c202b0d2ec557dg4r9bc";
+
+    private readonly HttpClient _httpClient;
+
+    public IcibaDictionaryService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
 
     public async Task<WordDefinition?> LookUpAsync(string word, CancellationToken cancellationToken = default)
     {
@@ -26,88 +35,80 @@ public sealed class IcibaDictionaryService(HttpClient httpClient) : IDictionaryS
             return null;
         }
 
-        if (string.IsNullOrEmpty(_buildId))
-        {
-            await RefreshBuildIdAsync(cancellationToken);
-        }
-
-        try
-        {
-            return await LookUpCoreAsync(trimmed, cancellationToken);
-        }
-        catch (HttpRequestException)
-        {
-            // buildId 随站点部署失效时 word.json 返回 404：刷新一次后重试
-            await RefreshBuildIdAsync(cancellationToken);
-            return await LookUpCoreAsync(trimmed, cancellationToken);
-        }
-    }
-
-    private async Task<WordDefinition?> LookUpCoreAsync(string word, CancellationToken cancellationToken)
-    {
-        var json = await httpClient.GetStringAsync(
-            $"/_next/data/{_buildId}/word.json?w={Uri.EscapeDataString(word)}", cancellationToken);
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var signature = ComputeSignature($"{QueryPath}{ClientId}{Key}{timestamp}{trimmed}{SignSalt}");
+        // Do NOT append transSensitiveCheck like the official client: the server then includes
+        // it in signature validation and our signature would always fail. Verified live 2026-10-08.
+        // 不要像官方客户端那样追加 transSensitiveCheck：服务端会将其纳入签名校验，
+        // 我方签名未包含该值将必然校验失败（2026-10-08 线上实测）。
+        var requestUri = $"{QueryPath}?client={ClientId}&key={Key}&timestamp={timestamp}" +
+                         $"&word={Uri.EscapeDataString(trimmed)}&signature={signature}";
+        var json = await _httpClient.GetStringAsync(requestUri, cancellationToken);
         return Parse(json);
     }
 
-    private async Task RefreshBuildIdAsync(CancellationToken cancellationToken)
+    internal static string ComputeSignature(string source)
     {
-        var html = await httpClient.GetStringAsync("/", cancellationToken);
-        _buildId = ExtractBuildId(html);
-    }
-
-    internal static string? ExtractBuildId(string html)
-    {
-        var start = html.IndexOf(BuildIdMarker, StringComparison.Ordinal);
-        if (start < 0)
-        {
-            return null;
-        }
-
-        start += BuildIdMarker.Length;
-        var end = html.IndexOf('"', start);
-        return end < 0 ? null : html[start..end];
+        // Server validates lowercase hex MD5 over UTF-8 bytes of path + client + key + timestamp + word + salt.
+        // 服务端校验「路径 + client + key + timestamp + 原词 + 盐值」的 UTF-8 字节的小写十六进制 MD5。
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes(source));
+        return Convert.ToHexString(hash).ToLowerInvariant();
     }
 
     internal static WordDefinition? Parse(string json)
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
-        if (!TryGet(root, "pageProps", out var pageProps) ||
-            !TryGet(pageProps, "initialReduxState", out var reduxState) ||
-            !TryGet(reduxState, "word", out var word) ||
-            !TryGet(word, "wordInfo", out var wordInfo) ||
-            !TryGet(wordInfo, "bidec", out var bidec) ||
-            bidec.ValueKind != JsonValueKind.Object)
+        // On validation errors the API returns message as a plain string, not an object.
+        // 校验失败时接口返回的 message 是普通字符串而非对象。
+        if (!TryGet(root, "message", out var message) ||
+            message.ValueKind != JsonValueKind.Object ||
+            !TryGet(message, "baesInfo", out var baesInfo) ||
+            baesInfo.ValueKind != JsonValueKind.Object)
         {
             return null;
         }
 
-        var wordName = TryGet(bidec, "word_name", out var nameElement)
+        var wordName = TryGet(baesInfo, "word_name", out var nameElement)
             ? nameElement.GetString() ?? string.Empty
             : string.Empty;
         var meanings = new List<string>();
-        if (TryGet(bidec, "parts", out var parts) && parts.ValueKind == JsonValueKind.Array)
+        if (TryGet(baesInfo, "symbols", out var symbols) && symbols.ValueKind == JsonValueKind.Array)
         {
-            foreach (var part in parts.EnumerateArray())
+            foreach (var symbol in symbols.EnumerateArray())
             {
-                var partName = TryGet(part, "part_name", out var partNameElement)
-                    ? partNameElement.GetString()
-                    : null;
-                if (!TryGet(part, "means", out var means) || means.ValueKind != JsonValueKind.Array)
+                if (!TryGet(symbol, "parts", out var parts) || parts.ValueKind != JsonValueKind.Array)
                 {
                     continue;
                 }
 
-                foreach (var mean in means.EnumerateArray())
+                foreach (var part in parts.EnumerateArray())
                 {
-                    if (TryGet(mean, "word_mean", out var meanElement) &&
-                        meanElement.GetString() is { Length: > 0 } text)
+                    var partName = TryGet(part, "part", out var partElement)
+                        ? partElement.GetString()
+                        : null;
+                    if (!TryGet(part, "means", out var means) || means.ValueKind != JsonValueKind.Array)
                     {
-                        meanings.Add(string.IsNullOrWhiteSpace(partName) ? text : $"{partName} {text}");
+                        continue;
+                    }
+
+                    foreach (var mean in means.EnumerateArray())
+                    {
+                        // means are plain strings here, unlike the object array of the legacy word.json API.
+                        // 此接口的 means 是字符串数组，区别于旧 word.json 接口的对象数组。
+                        if (mean.ValueKind == JsonValueKind.String &&
+                            mean.GetString() is { Length: > 0 } text)
+                        {
+                            meanings.Add(string.IsNullOrWhiteSpace(partName) ? text : $"{partName} {text}");
+                        }
                     }
                 }
             }
+        }
+
+        if (meanings.Count == 0)
+        {
+            return null;
         }
 
         return new WordDefinition { Word = wordName, Meanings = meanings };

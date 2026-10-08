@@ -5,79 +5,98 @@ namespace Context.Tests;
 
 public class IcibaDictionaryServiceTests
 {
-    private const string ValidWordJson = """
+    private const string SignSalt = "7ece94d9f9c202b0d2ec557dg4r9bc";
+
+    private const string EnglishWordJson = """
         {
-          "pageProps": {
-            "initialReduxState": {
-              "word": {
-                "wordInfo": {
-                  "bidec": {
-                    "word_name": "hello",
-                    "parts": [
-                      {
-                        "part_name": "interj.",
-                        "means": [ { "word_mean": "嘿" }, { "word_mean": "你好" } ]
-                      },
-                      {
-                        "part_name": "n.",
-                        "means": [ { "word_mean": "表示问候" } ]
-                      }
-                    ]
-                  }
+          "status": 1,
+          "message": {
+            "baesInfo": {
+              "word_name": "hello",
+              "symbols": [
+                {
+                  "word_symbol": "helˈəʊ",
+                  "parts": [
+                    { "part": "int.", "means": ["哈喽，喂", "你好"] },
+                    { "part": "n.", "means": ["表示问候"] }
+                  ]
                 }
-              }
+              ]
             }
           }
         }
         """;
 
-    private string _currentBuildId = "OLD";
-    private int _homePageCallCount;
-    private bool _failNextWordRequest;
-    private readonly List<string> _requestedWordPaths = [];
-    private string _wordJsonResponse = ValidWordJson;
+    private const string ChineseWordJson = """
+        {
+          "status": 1,
+          "message": {
+            "baesInfo": {
+              "word_name": "世界",
+              "symbols": [
+                {
+                  "word_symbol": "shì jiè",
+                  "parts": [
+                    { "part": "n.", "means": ["world", "global", "earth"] }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+        """;
+
+    private readonly List<string> _requestedPaths = [];
+    private string _jsonResponse = EnglishWordJson;
 
     private IcibaDictionaryService CreateService()
     {
         var httpClient = new HttpClient(new StubHttpHandler(Serve));
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("test");
-        httpClient.BaseAddress = new Uri("https://www.iciba.com/");
+        httpClient.BaseAddress = new Uri("https://dict.iciba.com/");
         return new IcibaDictionaryService(httpClient);
     }
 
     private HttpResponseMessage Serve(HttpRequestMessage request)
     {
-        if (request.RequestUri!.AbsoluteUri.Contains("/_next/data/"))
+        _requestedPaths.Add(request.RequestUri!.PathAndQuery);
+        return new HttpResponseMessage(HttpStatusCode.OK)
         {
-            _requestedWordPaths.Add(request.RequestUri.PathAndQuery);
-            if (_failNextWordRequest)
-            {
-                _failNextWordRequest = false;
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            return request.RequestUri.PathAndQuery.Contains($"/_next/data/{_currentBuildId}/")
-                ? Json(_wordJsonResponse)
-                : new HttpResponseMessage(HttpStatusCode.NotFound);
-        }
-
-        _homePageCallCount++;
-        if (_homePageCallCount == 2)
-        {
-            // 模拟站点在两次访问之间重新部署，buildId 刷新
-            _currentBuildId = "NEW";
-        }
-
-        return Json(string.Format("{{\"buildId\":\"{0}\"}}", _currentBuildId));
+            Content = new StringContent(_jsonResponse),
+        };
     }
 
-    private static HttpResponseMessage Json(string json) => new(HttpStatusCode.OK)
+    [Fact]
+    public void ComputeSignature_MatchesServerAcceptedSignature()
     {
-        Content = new StringContent(json),
-    };
+        // Signature verified against the live API on 2026-10-08: the request with this
+        // signature returned status=1, while tampered ones returned 10001.
+        // 签名于 2026-10-08 对线上接口实测通过（status=1），篡改 timestamp/word/签名均返回 10001。
+        var source = $"/dictionary/word/query/web610000061791446818094hello{SignSalt}";
+
+        var signature = IcibaDictionaryService.ComputeSignature(source);
+
+        Assert.Equal("27613da2ab7fcffa22920933acb92f71", signature);
+    }
 
     [Fact]
-    public async Task LookUpAsync_ParsesBidec_ToMeanings()
+    public async Task LookUpAsync_BuildsSignedRequest_WithTimestampAndWord()
+    {
+        var service = CreateService();
+
+        await service.LookUpAsync("hello");
+
+        var query = _requestedPaths.Single();
+        Assert.StartsWith("/dictionary/word/query/web?", query);
+        Assert.Contains("client=6", query);
+        Assert.Contains("key=1000006", query);
+        var timestamp = Extract(query, "timestamp=");
+        var expected = IcibaDictionaryService.ComputeSignature(
+            $"/dictionary/word/query/web61000006{timestamp}hello{SignSalt}");
+        Assert.Equal(expected, Extract(query, "signature="));
+    }
+
+    [Fact]
+    public async Task LookUpAsync_ParsesEnglishWord_ToChineseMeanings()
     {
         var service = CreateService();
 
@@ -85,35 +104,42 @@ public class IcibaDictionaryServiceTests
 
         Assert.NotNull(definition);
         Assert.Equal("hello", definition.Word);
-        Assert.Equal(["interj. 嘿", "interj. 你好", "n. 表示问候"], definition.Meanings);
-        Assert.Equal(1, _homePageCallCount);
+        Assert.Equal(["int. 哈喽，喂", "int. 你好", "n. 表示问候"], definition.Meanings);
     }
 
     [Fact]
-    public async Task LookUpAsync_RetriesWithRefreshedBuildId_WhenStale()
+    public async Task LookUpAsync_ParsesChineseWord_ToEnglishMeanings()
     {
-        _failNextWordRequest = true;
+        _jsonResponse = ChineseWordJson;
+        var service = CreateService();
+
+        var definition = await service.LookUpAsync("世界");
+
+        Assert.NotNull(definition);
+        Assert.Equal("世界", definition.Word);
+        Assert.Equal(["n. world", "n. global", "n. earth"], definition.Meanings);
+    }
+
+    [Fact]
+    public async Task LookUpAsync_ReturnsNull_WhenValidationFails()
+    {
+        _jsonResponse = """{ "message": "校验错误", "status": 10001 }""";
         var service = CreateService();
 
         var definition = await service.LookUpAsync("hello");
 
-        Assert.NotNull(definition);
-        // 第一次用 OLD 构建ID 请求 404，刷新为 NEW 后重试成功
-        Assert.Contains(_requestedWordPaths, p => p.Contains("/_next/data/OLD/word.json"));
-        Assert.Contains(_requestedWordPaths, p => p.Contains("/_next/data/NEW/word.json"));
-        Assert.Equal(2, _homePageCallCount);
+        Assert.Null(definition);
     }
 
     [Fact]
-    public async Task LookUpAsync_ReturnsNull_WhenWordNotFound()
+    public async Task LookUpAsync_ReturnsNull_WhenBaesInfoMissing()
     {
-        _wordJsonResponse = """{ "pageProps": { "initialReduxState": { "word": { "wordInfo": {} } } } }""";
+        _jsonResponse = """{ "status": 1, "message": {} }""";
         var service = CreateService();
 
         var definition = await service.LookUpAsync("zzzz");
 
         Assert.Null(definition);
-        Assert.Equal(1, _homePageCallCount);
     }
 
     [Fact]
@@ -123,7 +149,7 @@ public class IcibaDictionaryServiceTests
 
         await service.LookUpAsync("  hello  ");
 
-        Assert.Contains("w=hello", _requestedWordPaths.Single());
+        Assert.Contains("word=hello", _requestedPaths.Single());
     }
 
     [Fact]
@@ -134,7 +160,13 @@ public class IcibaDictionaryServiceTests
         var definition = await service.LookUpAsync("   ");
 
         Assert.Null(definition);
-        Assert.Empty(_requestedWordPaths);
-        Assert.Equal(0, _homePageCallCount);
+        Assert.Empty(_requestedPaths);
+    }
+
+    private static string Extract(string query, string key)
+    {
+        var start = query.IndexOf(key, StringComparison.Ordinal) + key.Length;
+        var end = query.IndexOf('&', start);
+        return end < 0 ? query[start..] : query[start..end];
     }
 }

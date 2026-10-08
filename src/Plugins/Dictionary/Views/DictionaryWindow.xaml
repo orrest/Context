@@ -38,6 +38,11 @@
             </TextBox.InputBindings>
         </TextBox>
         <TextBlock
+            Margin="0,6,0,0"
+            FontSize="11"
+            Foreground="Gray"
+            Text="输入英文或中文词汇，回车查询" />
+        <TextBlock
             Margin="0,8,0,0"
             FontSize="14"
             FontWeight="Bold"

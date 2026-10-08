@@ -13,7 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddDictionary(
         this IServiceCollection services,
-        string icibaBaseUrl = "https://www.iciba.com/")
+        string icibaBaseUrl = "https://dict.iciba.com/")
     {
         // Never register bare HttpClient as a service type: a later registration
         // 禁止将裸 HttpClient 注册为服务类型：按 DI 规则后注册的实例
