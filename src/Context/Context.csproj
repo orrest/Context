@@ -25,7 +25,10 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <!-- Console window in Debug for log output; hidden windowless WinExe in Release -->
+    <!-- Debug 下保留控制台窗口便于查看日志输出，Release 下输出 WinExe 隐藏控制台 -->
     <OutputType>Exe</OutputType>
+    <OutputType Condition="'$(Configuration)' == 'Release'">WinExe</OutputType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
