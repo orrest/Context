@@ -61,6 +61,13 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+                        <!--  Hover highlight layer: rounded-corner rectangle painted under content.
+                              悬停高亮层：圆角矩形底，位于内容与指示条之下，触发器仅改其背景。  -->
+                        <Border
+                            x:Name="HoverBackground"
+                            Grid.RowSpan="2"
+                            Background="Transparent"
+                            CornerRadius="4" />
                         <ContentPresenter
                             Margin="{x:Static themes:TabControlTheme.TabPadding}"
                             HorizontalAlignment="Center"
@@ -84,7 +91,7 @@
                                 <Condition Property="IsMouseOver" Value="True" />
                                 <Condition Property="IsSelected" Value="False" />
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource TabItem.Hover}" />
+                            <Setter TargetName="HoverBackground" Property="Background" Value="{DynamicResource TabItem.Hover}" />
                         </MultiTrigger>
                         <!--  选中：指示条标示；前景保持常规色，避免紫色强调经逻辑树
                               （页内容是 TabItem 的逻辑子级）继承到页内全部文字  -->
