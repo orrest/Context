@@ -9,6 +9,7 @@ public class WallpaperServiceTests
 {
     private const string TodayImageUrl = "today";
     private const string YesterdayImageUrl = "yesterday";
+    private const string OlderImageUrl = "older";
 
     private readonly IWallpaperRepository _repository = Substitute.For<IWallpaperRepository>();
     private readonly IDesktopWallpaperSetter _setter = Substitute.For<IDesktopWallpaperSetter>();
@@ -29,7 +30,7 @@ public class WallpaperServiceTests
 
         await _repository.Received(1).GetImageAsync(TodayImageUrl, Arg.Any<CancellationToken>());
         await _setter.Received(1).SetAsync(
-            Arg.Any<byte[]>(), "2026-09-24.jpg", Arg.Any<CancellationToken>());
+            Arg.Any<byte[]>(), $"{Today():yyyy-MM-dd}.jpg", Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -62,7 +63,52 @@ public class WallpaperServiceTests
         await _service.SetNextAsDesktopAsync();
 
         await _setter.Received(1).SetAsync(
-            Arg.Any<byte[]>(), "2026-09-24.jpg", Arg.Any<CancellationToken>());
+            Arg.Any<byte[]>(), $"{Today():yyyy-MM-dd}.jpg", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetNextAsDesktopAsync_CacheNewestIsNotToday_RefetchesEveryCall()
+    {
+        _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns(CreateStaleWallpaper());
+
+        await _service.SetNextAsDesktopAsync();
+        await _service.SetNextAsDesktopAsync();
+
+        await _repository.Received(2).GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetNextAsDesktopAsync_RefetchBringsNewDay_RestartsFromToday()
+    {
+        _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns(CreateStaleWallpaper(), CreateWallpaper());
+
+        await _service.SetNextAsDesktopAsync();
+        await _service.SetNextAsDesktopAsync();
+
+        await _repository.Received(1).GetImageAsync(YesterdayImageUrl, Arg.Any<CancellationToken>());
+        await _repository.Received(1).GetImageAsync(TodayImageUrl, Arg.Any<CancellationToken>());
+        await _setter.Received(1).SetAsync(
+            Arg.Any<byte[]>(), $"{Today():yyyy-MM-dd}.jpg", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SetNextAsDesktopAsync_RefetchSameNewestDay_KeepsBrowsePosition()
+    {
+        _repository.GetRecentAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns(CreateStaleWallpaper(), CreateStaleWallpaper());
+
+        await _service.SetNextAsDesktopAsync();
+        await _service.SetNextAsDesktopAsync();
+
+        await _repository.Received(1).GetImageAsync(YesterdayImageUrl, Arg.Any<CancellationToken>());
+        await _repository.Received(1).GetImageAsync(OlderImageUrl, Arg.Any<CancellationToken>());
+    }
+
+    private static DateOnly Today()
+    {
+        return DateOnly.FromDateTime(DateTime.Now);
     }
 
     private static List<WallpaperEntity> CreateWallpaper()
@@ -71,17 +117,40 @@ public class WallpaperServiceTests
         [
             new WallpaperEntity
             {
-                Date = new DateOnly(2026, 9, 24),
+                Date = Today(),
                 Title = "今天",
                 ImageUrl = TodayImageUrl,
                 ThumbnailUrl = "today-thumb",
             },
             new WallpaperEntity
             {
-                Date = new DateOnly(2026, 9, 23),
+                Date = Today().AddDays(-1),
                 Title = "昨天",
                 ImageUrl = YesterdayImageUrl,
                 ThumbnailUrl = "yesterday-thumb",
+            },
+        ];
+    }
+
+    // Newest wallpaper is dated yesterday, as when the app outlives midnight before the archive updates.
+    // 最新壁纸日期为昨天，模拟应用跨天驻留且归档尚未更新的场景。
+    private static List<WallpaperEntity> CreateStaleWallpaper()
+    {
+        return
+        [
+            new WallpaperEntity
+            {
+                Date = Today().AddDays(-1),
+                Title = "昨天",
+                ImageUrl = YesterdayImageUrl,
+                ThumbnailUrl = "yesterday-thumb",
+            },
+            new WallpaperEntity
+            {
+                Date = Today().AddDays(-2),
+                Title = "前天",
+                ImageUrl = OlderImageUrl,
+                ThumbnailUrl = "older-thumb",
             },
         ];
     }
